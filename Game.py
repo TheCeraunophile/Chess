@@ -12,6 +12,7 @@ class Game:
     """
     def __init__(self):
         self.players = [Player('WHITE'), Player('BLACK')]
+        self.current = self.players[0]
         self.board = Board()
         self.turn = 0
         """
@@ -35,10 +36,33 @@ class Game:
             raise InputException('invalid dst')
         return src, dst
 
+    def update_turn(self):
+        """
+        Always player White starts the game
+        :return: next player
+        """
+        self.turn = (self.turn + 1) % 2
+        self.current = self.players[self.turn]
+
     def main_loop(self):
         while True:
             try:
+
                 src, dst = self.control()
+
+            # src should contain player's piece -> MoveException
+            # dst shouldn't contain player's piece -> MoveException
+            # after piece moving, player's king shouldn't be in check, king in check or only the piece be achmaz
+            # maybe with every movement the player's king still be in check so player lose the game
+
+            # we should be sure that the player can choose at least one movement (before
+            # getting src and dst from the player, called pre-processing)
+            # if yes: game continue if not: player lose the game, or draw
+
+            # Instead of post-processing, we use a pre-processing approach
+            # so that we don't need to analyze the movement of both players' pieces
+            # This approach makes Min-Max tree easier for us
+
             except (MoveException, InputException) as e:
                 print('error ' + e.msg)
             except EndOfGame as e:
@@ -46,4 +70,6 @@ class Game:
                 break
             except KeyboardInterrupt:
                 break
+            else:
+                self.update_turn()
         exit(0)
