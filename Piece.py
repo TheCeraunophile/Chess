@@ -17,7 +17,7 @@ class Knight(Piece):
         self.name = 'WHITE KNIGHT' if owner.name == 'WHITE' else 'BLACK KNIGHT'
 
     def check_move(self, board, player: Player, src: tuple):
-        pass
+        return []
 
 
 class King(Piece):
@@ -26,7 +26,7 @@ class King(Piece):
         self.name = 'WHITE KING' if owner.name == 'WHITE' else 'BLACK KING'
 
     def check_move(self, board, player: Player, src: tuple):
-        king_move(player, board, src)
+        king_move(board, src)
 
 
 class Rook(Piece):
@@ -35,27 +35,27 @@ class Rook(Piece):
         self.name = 'WHITE QUEEN' if owner.name == 'WHITE' else 'BLACK QUEEN'
 
     def check_move(self, board, player: Player, src: tuple):
-        return polar_move(player, src)
+        return polar_move(player, board, src)
 
 
 class Bishop(Piece):
-    def __init__(self, board, owner: Player):
+    def __init__(self, owner: Player):
         super().__init__(owner)
         self.name = 'WHITE BISHOP' if owner.name == 'WHITE' else 'BLACK BISHOP'
 
     def check_move(self, board, player: Player, src: tuple):
-        return diagonal_move(player, src)
+        return diagonal_move(player, board, src)
 
 
 class Queen(Piece):
-    def __init__(self, board, owner: Player):
+    def __init__(self, owner: Player):
         super().__init__(owner)
         self.name = 'WHITE QUEEN' if owner.name == 'WHITE' else 'BLACK QUEEN'
 
-    def check_move(self, player: Player, src: tuple):
+    def check_move(self, board, player: Player, src: tuple):
         tmp = []
-        tmp.extend(polar_move(player, src))
-        tmp.extend(direct_move(player, src))
+        tmp.extend(polar_move(player, board, src))
+        tmp.extend(diagonal_move(player, board, src))
         return tmp
 
 
@@ -65,12 +65,13 @@ class Pawn(Piece):
         self.name = 'WHITE PAWN' if owner.name == 'WHITE' else 'BLACK PAWN'
 
     def check_move(self, board, player: Player, src: tuple):
-        if self.owner.name == 'WHITE':
-            return self.check_white_move(src, dst)
-        return self.check_black_move(src, dst)
+        # if self.owner.name == 'WHITE':
+        #     return self.check_white_move(board, src)
+        # return self.check_black_move(board, src)
+        return []
 
-    def check_white_move(self, src: tuple):
+    def check_white_move(self, board, src: tuple):
         pass
 
-    def check_black_move(self, src: tuple):
+    def check_black_move(self, board, src: tuple):
         pass

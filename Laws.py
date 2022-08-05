@@ -28,20 +28,20 @@ def polar_move(player: Player, board, src: tuple):
     result.extend(direct_move(player, board, src, nothing, plus))
     result.extend(direct_move(player, board, src, minus, nothing))
     result.extend(direct_move(player, board, src, nothing, minus))
-    return dst result
+    return result
 
 
-def direct_move(player: Player, board, src: tuple):
+def direct_move(player: Player, board, src: tuple, update_i, update_j):
     i, j = src
     result = []
     while True:
         try:
             i = update_i(i)
             j = update_j(j)
-            if board.board[i][j] is None:
+            if board[i][j] is None:
                 result.append((i, j))
-            elif board.board[i][j].piece.owner != player and \
-                    not board.board[i][j].piece.name.endswith('KING'):
+            elif board[i][j].top.owner != player and \
+                    not board[i][j].top.name.endswith('KING'):
                 result.append((i, j))
                 break
             else:
@@ -51,11 +51,11 @@ def direct_move(player: Player, board, src: tuple):
     return result
 
 
-def king_move(player: Player, board, src: tuple):
+def king_move(board, src: tuple):
     i, j = src
     result = []
     un_checked_result = [(i, j+1), (i, j-1), (i+1, j), (i-1, j), (i+1, j+1), (i-1, j-1), (i-1, j+1), (i+1, j-1)]
     for i in un_checked_result:
-        if board[i[0]][i[1]].top == None:
+        if board[i[0]][i[1]].top is None:
             result.append(i)
     return result

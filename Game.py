@@ -67,7 +67,7 @@ class Game:
 
             except (MoveException, InputException) as e:
                 print('error ' + e.msg)
-            except EndOfGame as e:
+            except EndOfGameException as e:
                 print('error ' + e.msg)
                 break
             except KeyboardInterrupt:
