@@ -3,7 +3,7 @@ class MyException(Exception):
         self.msg = msg
 
 
-class EndOfGame(MyException):
+class EndOfGameException(MyException):
     pass
 
 
@@ -12,4 +12,8 @@ class MoveException(MyException):
 
 
 class InputException(MyException):
+    pass
+
+
+class IllegalMoveException(MyException):
     pass

@@ -1,6 +1,6 @@
 from Player import Player
 from Board import Board
-from Exceptions import EndOfGame, InputException, MoveException
+from Exceptions import EndOfGameException, InputException, MoveException, IllegalMoveException
 
 
 class Game:
@@ -13,7 +13,7 @@ class Game:
     def __init__(self):
         self.players = [Player('WHITE'), Player('BLACK')]
         self.current = self.players[0]
-        self.board = Board()
+        self.board = Board(self.players)
         self.turn = 0
         """
         each one of 64 chess houses defined by a number in range 1-8
@@ -47,9 +47,11 @@ class Game:
     def main_loop(self):
         while True:
             try:
-
+                nodes = self.board.pre_processing(self.current)
                 src, dst = self.control()
-
+                if not (src, dst) in nodes:
+                    raise IllegalMoveException('IllegalMoveException')
+                
             # src should contain player's piece -> MoveException
             # dst shouldn't contain player's piece -> MoveException
             # after piece moving, player's king shouldn't be in check, king in check or only the piece be achmaz
