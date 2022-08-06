@@ -1,7 +1,7 @@
 from Player import Player
 
 
-def nothing(a):
+def feedback(a):
     return a
 
 
@@ -13,7 +13,15 @@ def plus(a):
     return a + 1
 
 
-def diagonal_move(player: Player, board, src: tuple):
+def plus2(a):
+    return a + 2
+
+
+def minus2(a):
+    return a - 2
+
+
+def diagonal_move(board, player: Player, src: tuple):
     result = []
     result.extend(direct_move(player, board, src, plus, plus))
     result.extend(direct_move(player, board, src, plus, minus))
@@ -22,12 +30,12 @@ def diagonal_move(player: Player, board, src: tuple):
     return result
 
 
-def polar_move(player: Player, board, src: tuple):
+def polar_move(board, player: Player, src: tuple):
     result = []
-    result.extend(direct_move(player, board, src, plus, nothing))
-    result.extend(direct_move(player, board, src, nothing, plus))
-    result.extend(direct_move(player, board, src, minus, nothing))
-    result.extend(direct_move(player, board, src, nothing, minus))
+    result.extend(direct_move(player, board, src, plus, feedback))
+    result.extend(direct_move(player, board, src, feedback, plus))
+    result.extend(direct_move(player, board, src, minus, feedback))
+    result.extend(direct_move(player, board, src, feedback, minus))
     return result
 
 
@@ -53,11 +61,62 @@ def direct_move(player: Player, board, src: tuple, update_i, update_j):
     return result
 
 
-def king_move(board, src: tuple):
+def check_range(input_list):
+    result = []
+    for node in input_list:
+        if 0 <= node[0] <= 7 and 0 <= node[1] <= 7:
+            result.append(node)
+    return result
+
+
+def king_move(board, player, src: tuple):
     i, j = src
     result = []
-    un_checked_result = [(i, j+1), (i, j-1), (i+1, j), (i-1, j), (i+1, j+1), (i-1, j-1), (i-1, j+1), (i+1, j-1)]
+    un_checked_result = check_range([(i, j+1), (i, j-1), (i+1, j), (i-1, j), (i+1, j+1), (i-1, j-1), (i-1, j+1), (i+1, j-1)])
     for i in un_checked_result:
-        if board[i[0]][i[1]].top is None:
+        if board[i[0]][i[1]].top is None or (board[i[0]][i[1]].top.owner != player and not board[i[0]][i[1]].top.owner.name.endswith('KING')):
             result.append(i)
+    return result
+
+
+def knight_move(board, player, src: tuple):
+    result = []
+    i, j = src
+    first_targets = check_range([(i+2, j+1), (i+2, j-1), (i-2, j+1), (i-2, j-1), (i+1, j+2), (i-1, j+2), (i+1, j-2), (i-1, j-2)])
+    for node in first_targets:
+        i, j = node
+        if 0 <= i <= 7 and 0 <= j <= 7 and (board[i][j].top is None or (board[i][j].top.owner != player and not board[i][j].top.owner.nameendswith('KING'))):
+            result.append(node)
+    return result
+
+
+def pawn_move(board, player, src: tuple):
+    if player.name == 'WHITE':
+        return pawn_generator_moves(board, player, src, plus, plus2)
+    return pawn_generator_moves(board, player, src, minus, minus2)
+
+
+def pawn_generator_moves(board, player, src, update1, update2):
+    result = []
+    i, j = src
+    if board[update1(i)][j].top is None:
+        result.append((update1(i), j))
+        if ((i == 1 and player.name=='WHITE') or (i==6 and player.name == 'BLACK')) and board[update2(i)][j].top is None:
+            result.append((update2(i), j))
+    try:
+        if j == 0:
+            raise Exception
+        owner = board[update1(i)][j - 1].top.owner
+        if owner != player and not owner.name.endswith('KING'):
+            result.append((update1(i), j - 1))
+    except Exception:
+        pass
+    try:
+        if j == 7:
+            raise Exception
+        owner = board[update1(i)][j + 1].top.owner
+        if owner != player and not owner.name.endswith('KING'):
+            result.append((update1(i), j + 1))
+    except Exception:
+        pass
     return result

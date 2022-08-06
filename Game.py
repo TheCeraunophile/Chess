@@ -52,7 +52,8 @@ class Game:
                 src, dst = self.control()
                 if dst not in piece_to_node.get(src, []):
                     raise IllegalMoveException('IllegalMoveException')
-
+                else:
+                    self.board.move(src, dst)
             # src should contain player's piece -> MoveException
             # dst shouldn't contain player's piece -> MoveException
             # after piece moving, player's king shouldn't be in check, king in check or only the piece be achmaz

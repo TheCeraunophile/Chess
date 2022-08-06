@@ -14,7 +14,9 @@ class Node:
     def pick_up(self):
         self.down = self.top
         self.top = None
+        return self.down
 
     def back(self):
         self.top = self.down
         self.down = None
+

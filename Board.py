@@ -47,14 +47,9 @@ class Board:
         
         self.board[7][4].add(King(self.players[1]))
 
-    def give_piece(self, src: tuple):
-        pass
-
-    def back(self, src: tuple, dst: tuple):
-        pass
-
-    def move(self, player: Player, src: tuple, dst: tuple):
-        pass
+    def move(self, src: tuple, dst: tuple):
+        tmp = self.board[src[0]][src[1]].pick_up()
+        self.board[dst[0]][dst[1]].add(tmp)
 
     def pre_processing(self, player: Player):
         result = {}
@@ -62,10 +57,13 @@ class Board:
         for i in range(8):
             for j in range(8):
                 if self.board[i][j].top is not None and self.board[i][j].top.owner == player:
-                    tmp = self.board[i][j].top.check_move(self.board, player, (i, j))
+                    tmp = self.board[i][j].top.check_move(self.board, (i, j))
+                    # if isinstance(self.board[i][j].top, Pawn):
+                    #     print(tmp)
                     if tmp is not None:
                         stick.extend(tmp)
                         result[(i, j)] = tmp
         if len(stick) == 0:
             raise EndOfGameException('END Game')
+        print(result)
         return result
