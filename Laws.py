@@ -38,7 +38,9 @@ def direct_move(player: Player, board, src: tuple, update_i, update_j):
         try:
             i = update_i(i)
             j = update_j(j)
-            if board[i][j] is None:
+            if i < 0 or i > 7 or j < 0 or j > 7:
+                raise Exception
+            if board[i][j].top is None:
                 result.append((i, j))
             elif board[i][j].top.owner != player and \
                     not board[i][j].top.name.endswith('KING'):
@@ -46,7 +48,7 @@ def direct_move(player: Player, board, src: tuple, update_i, update_j):
                 break
             else:
                 break
-        except IndexError:
+        except Exception:
             break
     return result
 

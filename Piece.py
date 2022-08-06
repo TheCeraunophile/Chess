@@ -32,7 +32,7 @@ class King(Piece):
 class Rook(Piece):
     def __init__(self, owner: Player):
         super().__init__(owner)
-        self.name = 'WHITE QUEEN' if owner.name == 'WHITE' else 'BLACK QUEEN'
+        self.name = 'WHITE ROOK' if owner.name == 'WHITE' else 'BLACK ROOK'
 
     def check_move(self, board, player: Player, src: tuple):
         return polar_move(player, board, src)

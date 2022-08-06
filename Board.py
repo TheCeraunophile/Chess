@@ -57,13 +57,15 @@ class Board:
         pass
 
     def pre_processing(self, player: Player):
-        result = []
+        result = {}
+        stick = []
         for i in range(8):
             for j in range(8):
                 if self.board[i][j].top is not None and self.board[i][j].top.owner == player:
                     tmp = self.board[i][j].top.check_move(self.board, player, (i, j))
                     if tmp is not None:
-                        result.extend(tmp)
-        if len(result) == 0:
-            raise EndOfGameException
+                        stick.extend(tmp)
+                        result[(i, j)] = tmp
+        if len(stick) == 0:
+            raise EndOfGameException('END Game')
         return result

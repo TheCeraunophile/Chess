@@ -10,6 +10,7 @@ class Game:
     every move specified by a source and destination, your piece located
     in src and goes to the des.
     """
+
     def __init__(self):
         self.players = [Player('WHITE'), Player('BLACK')]
         self.current = self.players[0]
@@ -47,11 +48,11 @@ class Game:
     def main_loop(self):
         while True:
             try:
-                nodes = self.board.pre_processing(self.current)
+                piece_to_node = self.board.pre_processing(self.current)
                 src, dst = self.control()
-                if not (src, dst) in nodes:
+                if dst not in piece_to_node.get(src, []):
                     raise IllegalMoveException('IllegalMoveException')
-                
+
             # src should contain player's piece -> MoveException
             # dst shouldn't contain player's piece -> MoveException
             # after piece moving, player's king shouldn't be in check, king in check or only the piece be achmaz
@@ -65,10 +66,10 @@ class Game:
             # so that we don't need to analyze the movement of both players' pieces
             # This approach makes Min-Max tree easier for us
 
-            except (MoveException, InputException) as e:
-                print('error ' + e.msg)
+            except (MoveException, InputException, IllegalMoveException) as e:
+                print(e.msg)
             except EndOfGameException as e:
-                print('error ' + e.msg)
+                print(e.msg)
                 break
             except KeyboardInterrupt:
                 break
