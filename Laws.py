@@ -85,7 +85,7 @@ def knight_move(board, player, src: tuple):
     first_targets = check_range([(i+2, j+1), (i+2, j-1), (i-2, j+1), (i-2, j-1), (i+1, j+2), (i-1, j+2), (i+1, j-2), (i-1, j-2)])
     for node in first_targets:
         i, j = node
-        if 0 <= i <= 7 and 0 <= j <= 7 and (board[i][j].top is None or (board[i][j].top.owner != player and not board[i][j].top.owner.nameendswith('KING'))):
+        if 0 <= i <= 7 and 0 <= j <= 7 and (board[i][j].top is None or (board[i][j].top.owner != player and not board[i][j].top.owner.name.endswith('KING'))):
             result.append(node)
     return result
 

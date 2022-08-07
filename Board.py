@@ -80,6 +80,7 @@ class Board:
         self.board[dst[0]][dst[1]].back()
 
     def move(self, src: tuple, dst: tuple):
+        # print('check movement from ' + str(src[0]) + ' ' + str(src[1]) + ' to ' + str(dst[0]) + ' ' + str(dst[1]))
         if self.board[src[0]][src[1]].top.name == 'WHITE KING':
             self.kings[0] = dst
         elif self.board[src[0]][src[1]].top.name == 'BLACK KING':
@@ -89,7 +90,7 @@ class Board:
             self.white_pieces.append(dst)
             if dst in self.black_pieces:
                 self.black_pieces.remove(dst)
-        else:
+        if self.board[src[0]][src[1]].top.owner == self.players[1]:
             self.black_pieces.remove(src)
             self.black_pieces.append(dst)
             if dst in self.white_pieces:
@@ -138,12 +139,32 @@ class Board:
         for piece in pieces:
             i, j = piece
             tmp = self.board[i][j].top.check_move(self.board, (i, j))
-            tmp = self.achmaz_detection(player, (i, j), tmp)
             if tmp is not None:
+                tmp = self.achmaz_detection(player, (i, j), tmp)
                 stick.extend(tmp)
                 result[(i, j)] = tmp
         if len(stick) == 0:
-            raise EndOfGameException('END Game')
-        for i in result.keys():
-            print(str(i) + "    " + str(result.get(i)))
+            if self.check(player):
+                raise EndOfGameException(player.name + ' Lose the Game')
+            else:
+                raise EndOfGameException('DRAW')
+        # for i in result.keys():
+        #     print(str(i) + "    " + str(result.get(i)))
         return result
+
+    def __str__(self):
+        print('   A  B  C  D  E  F  G  H')
+        for i in range(8):
+            line_buffur = str(i+1) + '  '
+            for j in range(8):
+                tmp = self.board[i][j].top
+                if tmp is None:
+                    if (i+j) % 2 == 0:
+                        line_buffur += u'\u25FB'
+                    else:
+                        line_buffur += u'\u25FC'
+                else:
+                    line_buffur += tmp.shape
+                line_buffur += '  '
+            print(line_buffur)
+        return ''

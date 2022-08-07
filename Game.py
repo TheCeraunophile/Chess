@@ -44,10 +44,12 @@ class Game:
         """
         self.turn = (self.turn + 1) % 2
         self.current = self.players[self.turn]
+        print(self.current.name + ' TURN')
 
     def main_loop(self):
         while True:
             try:
+                print(self.board)
                 piece_to_node = self.board.pre_processing(self.current)
                 src, dst = self.control()
                 if dst not in piece_to_node.get(src, []):
@@ -74,6 +76,8 @@ class Game:
                 break
             except KeyboardInterrupt:
                 break
+            except IndexError:
+                print('INVALID INPUT')
             else:
                 self.update_turn()
         exit(0)
