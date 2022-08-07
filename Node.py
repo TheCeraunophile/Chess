@@ -2,10 +2,11 @@ from Piece import Piece
 
 
 class Node:
-    def __init__(self, name, piece: Piece = None):
+    def __init__(self, name, index, piece: Piece = None):
         self.name = name
         self.top = piece
         self.down = None
+        self.index = index
 
     def add(self, piece: Piece):
         self.down = self.top
