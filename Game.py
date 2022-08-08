@@ -1,6 +1,8 @@
 from Player import Player
 from Board import Board
 from Exceptions import EndOfGameException, InputException, MoveException, IllegalMoveException
+from evaluation import evaluate
+import random
 
 
 class Game:
@@ -16,6 +18,7 @@ class Game:
         self.current = self.players[0]
         self.board = Board(self.players)
         self.turn = 0
+        self.controls = []
         """
         each one of 64 chess houses defined by a number in range 1-8
         and a character in range A-H, so we should convert the input into
@@ -45,13 +48,30 @@ class Game:
         self.turn = (self.turn + 1) % 2
         self.current = self.players[self.turn]
 
+    def select_starter(self, funcs):
+        rand = random.randint(0, 1)
+        self.controls.append(funcs[rand])
+        self.controls.append(funcs[rand-1])
+
+    def select_mode(self):
+        while True:
+            try:
+                question = '1: ' + u'\U0001F464' + ' VS ' + u'\U0001F464' + '\n\n' + '2: ' + u'\U0001F464' + ' VS ' + u'\U0001f47a'
+                answear = {'1': (self.control, self.control), '2': (self.control, evaluate)}
+                print(question)
+                mode = input()
+                self.select_starter(answear.get(mode))
+                break
+            except Exception:
+                continue
+
     def main_loop(self):
         while True:
             try:
                 print(self.current.name + ' TURN')
                 print(self.board)
                 piece_to_node = self.board.pre_processing(self.current)
-                src, dst = self.control()
+                src, dst = self.controls[self.turn]() if self.controls[self.turn] == self.control else self.controls[self.turn](self.board, piece_to_node)
                 if dst not in piece_to_node.get(src, []):
                     raise IllegalMoveException('Illegal Move')
                 else:

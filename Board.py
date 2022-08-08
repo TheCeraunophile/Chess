@@ -142,7 +142,7 @@ class Board:
                 raise EndOfGameException('DRAW')
         return result
 
-    def post_processing(self,player, src, dst):
+    def post_processing(self, player, src, dst):
         if self.board[dst[0]][dst[1]].top is not None and self.board[dst[0]][dst[1]].top.name.endswith('KING'):
             raise IllegalMoveException("Don't Hit The King")
         else:
@@ -150,7 +150,26 @@ class Board:
         expand = {self.players[0]: 7, self.players[1]: 0}
         if isinstance(self.board[dst[0]][dst[1]].top, Pawn) and expand.get(self.board[dst[0]][dst[1]].top.owner) == dst[0]:
             self.board[dst[0]][dst[1]].down = None
-            self.board[dst[0]][dst[1]].top = Queen(player)
+            while True:
+                try:
+                    list_pieces = {'Q': Queen, 'R': Rook, 'K': Knight, 'B': Bishop}
+                    promoted_piece = input('Q: queen R: rook K: knight B: bishop\n')
+                    tmp = list_pieces.get(promoted_piece)
+                    self.board[dst[0]][dst[1]].top = tmp(player)
+                    break
+                except Exception:
+                    continue
+
+    def weight_of_board(self):
+        white_score = 0
+        black_score = 0
+        for src in self.white_pieces:
+            i, j = src
+            white_score += self.board[i][j].top.weight
+        for src in self.black_pieces:
+            i, j = src
+            black_score += self.board[i][j].top.weight
+        return white_score, black_score
 
     def __str__(self):
         line_buffer = '   A  B  C  D  E  F  G  H'
