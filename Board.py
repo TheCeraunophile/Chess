@@ -1,5 +1,5 @@
 from Player import Player
-from Exceptions import EndOfGameException
+from Exceptions import EndOfGameException, IllegalMoveException
 from typing import List
 from Piece import *
 from Node import Node
@@ -117,6 +117,7 @@ class Board:
             self.move(src, dst)
             if not self.check(player):
                 result.append(dst)
+                # calling a function that gives heuristic score to this situation
             self.back(src, dst)
         return result
 
@@ -139,23 +140,30 @@ class Board:
                 raise EndOfGameException(player.name + ' Lose the Game')
             else:
                 raise EndOfGameException('DRAW')
-        # for i in result.keys():
-        #     print(str(i) + "    " + str(result.get(i)))
         return result
 
+    def post_processing(self,player, src, dst):
+        if self.board[dst[0]][dst[1]].top is not None and self.board[dst[0]][dst[1]].top.name.endswith('KING'):
+            raise IllegalMoveException("Don't Hit The King")
+        else:
+            self.move(src, dst)
+        expand = {self.players[0]: 7, self.players[1]: 0}
+        if isinstance(self.board[dst[0]][dst[1]].top, Pawn) and expand.get(self.board[dst[0]][dst[1]].top.owner) == dst[0]:
+            self.board[dst[0]][dst[1]].down = None
+            self.board[dst[0]][dst[1]].top = Queen(player)
+
     def __str__(self):
-        print('   A  B  C  D  E  F  G  H')
-        for i in range(8):
-            line_buffur = str(i+1) + '  '
+        line_buffer = '   A  B  C  D  E  F  G  H'
+        for i in range(7, -1, -1):
+            line_buffer += '\n' + str(i+1) + '  '
             for j in range(8):
                 tmp = self.board[i][j].top
                 if tmp is None:
                     if (i+j) % 2 == 0:
-                        line_buffur += u'\u25FB'
+                        line_buffer += u'\u25FB'
                     else:
-                        line_buffur += u'\u25FC'
+                        line_buffer += u'\u25FC'
                 else:
-                    line_buffur += tmp.shape
-                line_buffur += '  '
-            print(line_buffur)
-        return ''
+                    line_buffer += tmp.shape
+                line_buffer += '  '
+        return line_buffer

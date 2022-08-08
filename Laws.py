@@ -98,24 +98,28 @@ def pawn_move(board, player, src: tuple):
 def pawn_generator_moves(board, player, src, update1, update2):
     result = []
     i, j = src
-    if board[update1(i)][j].top is None:
-        result.append((update1(i), j))
-        if ((i == 1 and player.name=='WHITE') or (i==6 and player.name == 'BLACK')) and board[update2(i)][j].top is None:
+
+    if (i == 1 and player.name == 'WHITE') or (i == 6 and player.name == 'BLACK'):
+        if board[update1(i)][j].top is None and board[update2(i)][j].top is None:
             result.append((update2(i), j))
+
+    if (i < 7 and player.name == 'WHITE') or (i > 1 and player.name == 'BLACK'):
+        if board[update1(i)][j].top is None:
+            result.append((update1(i), j))
     try:
         if j == 0:
-            raise Exception
+            raise IndexError
         owner = board[update1(i)][j - 1].top.owner
         if owner != player:
             result.append((update1(i), j - 1))
-    except Exception:
+    except (AttributeError, IndexError):
         pass
     try:
         if j == 7:
-            raise Exception
+            raise IndexError
         owner = board[update1(i)][j + 1].top.owner
         if owner != player:
             result.append((update1(i), j + 1))
-    except Exception:
+    except (AttributeError, IndexError):
         pass
     return result

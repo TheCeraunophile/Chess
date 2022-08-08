@@ -55,10 +55,7 @@ class Game:
                 if dst not in piece_to_node.get(src, []):
                     raise IllegalMoveException('Illegal Move')
                 else:
-                    if self.board.board[dst[0]][dst[1]].top is not None and self.board.board[dst[0]][dst[1]].top.name.endswith('KING'):
-                        raise IllegalMoveException('dont touch King')
-                    else:
-                        self.board.move(src, dst)
+                    self.board.post_processing(self.current, src, dst)
             # src should contain player's piece -> MoveException
             # dst shouldn't contain player's piece -> MoveException
             # after piece moving, player's king shouldn't be in check, king in check or only the piece be achmaz

@@ -6,3 +6,6 @@ class Player:
         if isinstance(other, Player):
             return self.name == other.name
         return False
+
+    def __hash__(self):
+        return hash(self.name)
