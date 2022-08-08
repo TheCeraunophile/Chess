@@ -57,30 +57,24 @@ class Board:
         self.board[7][4].add(King(self.players[1]))
 
     def back(self, src, dst):
-        try:
-            if self.board[src[0]][src[1]].down.name == 'WHITE KING':
-                self.kings[0] = src
-            elif self.board[src[0]][src[1]].down.name == 'BLACK KING':
-                self.kings[1] = src
-        except Exception:
-            pass
-
-        if self.board[src[0]][src[1]].down is not None and self.board[src[0]][src[1]].down.owner == self.players[0]:
+        if self.board[dst[0]][dst[1]].top.name == 'WHITE KING':
+            self.kings[0] = src
+        elif self.board[dst[0]][dst[1]].top.name == 'BLACK KING':
+            self.kings[1] = src
+        if self.board[src[0]][src[1]].down.owner == self.players[0]:
             self.white_pieces.append(src)
             self.white_pieces.remove(dst)
-            if self.board[dst[0]][dst[1]].down == self.players[1]:
+            if self.board[dst[0]][dst[1]].down is not None:
                 self.black_pieces.append(dst)
-        elif self.board[src[0]][src[1]].down is not None:
+        else:
             self.black_pieces.append(src)
             self.black_pieces.remove(dst)
-            if self.board[dst[0]][dst[1]].down == self.players[0]:
+            if self.board[dst[0]][dst[1]].down is not None:
                 self.white_pieces.append(dst)
-
         self.board[src[0]][src[1]].back()
         self.board[dst[0]][dst[1]].back()
 
     def move(self, src: tuple, dst: tuple):
-        # print('check movement from ' + str(src[0]) + ' ' + str(src[1]) + ' to ' + str(dst[0]) + ' ' + str(dst[1]))
         if self.board[src[0]][src[1]].top.name == 'WHITE KING':
             self.kings[0] = dst
         elif self.board[src[0]][src[1]].top.name == 'BLACK KING':
@@ -105,13 +99,12 @@ class Board:
         else:
             pieces = self.white_pieces
             king = self.kings[1]
-        stick = []
         for piece in pieces:
             i, j = piece
             tmp = self.board[i][j].top.check_move(self.board, (i, j))
-            if tmp is not None:
-                stick.extend(tmp)
-        return king in stick
+            if king in tmp:
+                return True
+        return False
 
     def outer_section(self, a, b):
         temp = set(a)
@@ -130,12 +123,10 @@ class Board:
     def pre_processing(self, player: Player):
         result = {}
         stick = []
-        pieces = []
-        for i in range(8):
-            for j in range(8):
-                if self.board[i][j].top is not None:
-                    if self.board[i][j].top.owner == player:
-                        pieces.append((i, j))
+        if player.name == 'WHITE':
+            pieces = self.white_pieces[:]
+        else:
+            pieces = self.black_pieces[:]
         for piece in pieces:
             i, j = piece
             tmp = self.board[i][j].top.check_move(self.board, (i, j))

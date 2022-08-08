@@ -50,8 +50,7 @@ def direct_move(player: Player, board, src: tuple, update_i, update_j):
                 raise Exception
             if board[i][j].top is None:
                 result.append((i, j))
-            elif board[i][j].top.owner != player and \
-                    not board[i][j].top.name.endswith('KING'):
+            elif board[i][j].top.owner != player:
                 result.append((i, j))
                 break
             else:
@@ -74,7 +73,7 @@ def king_move(board, player, src: tuple):
     result = []
     un_checked_result = check_range([(i, j+1), (i, j-1), (i+1, j), (i-1, j), (i+1, j+1), (i-1, j-1), (i-1, j+1), (i+1, j-1)])
     for i in un_checked_result:
-        if board[i[0]][i[1]].top is None or (board[i[0]][i[1]].top.owner != player and not board[i[0]][i[1]].top.owner.name.endswith('KING')):
+        if board[i[0]][i[1]].top is None or board[i[0]][i[1]].top.owner != player:
             result.append(i)
     return result
 
@@ -85,7 +84,7 @@ def knight_move(board, player, src: tuple):
     first_targets = check_range([(i+2, j+1), (i+2, j-1), (i-2, j+1), (i-2, j-1), (i+1, j+2), (i-1, j+2), (i+1, j-2), (i-1, j-2)])
     for node in first_targets:
         i, j = node
-        if 0 <= i <= 7 and 0 <= j <= 7 and (board[i][j].top is None or (board[i][j].top.owner != player and not board[i][j].top.owner.name.endswith('KING'))):
+        if 0 <= i <= 7 and 0 <= j <= 7 and (board[i][j].top is None or (board[i][j].top.owner != player)):
             result.append(node)
     return result
 
@@ -107,7 +106,7 @@ def pawn_generator_moves(board, player, src, update1, update2):
         if j == 0:
             raise Exception
         owner = board[update1(i)][j - 1].top.owner
-        if owner != player and not owner.name.endswith('KING'):
+        if owner != player:
             result.append((update1(i), j - 1))
     except Exception:
         pass
@@ -115,7 +114,7 @@ def pawn_generator_moves(board, player, src, update1, update2):
         if j == 7:
             raise Exception
         owner = board[update1(i)][j + 1].top.owner
-        if owner != player and not owner.name.endswith('KING'):
+        if owner != player:
             result.append((update1(i), j + 1))
     except Exception:
         pass

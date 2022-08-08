@@ -44,18 +44,21 @@ class Game:
         """
         self.turn = (self.turn + 1) % 2
         self.current = self.players[self.turn]
-        print(self.current.name + ' TURN')
 
     def main_loop(self):
         while True:
             try:
+                print(self.current.name + ' TURN')
                 print(self.board)
                 piece_to_node = self.board.pre_processing(self.current)
                 src, dst = self.control()
                 if dst not in piece_to_node.get(src, []):
-                    raise IllegalMoveException('IllegalMoveException')
+                    raise IllegalMoveException('Illegal Move')
                 else:
-                    self.board.move(src, dst)
+                    if self.board.board[dst[0]][dst[1]].top is not None and self.board.board[dst[0]][dst[1]].top.name.endswith('KING'):
+                        raise IllegalMoveException('dont touch King')
+                    else:
+                        self.board.move(src, dst)
             # src should contain player's piece -> MoveException
             # dst shouldn't contain player's piece -> MoveException
             # after piece moving, player's king shouldn't be in check, king in check or only the piece be achmaz
