@@ -1,7 +1,7 @@
 from Player import Player
 from Board import Board
 from Exceptions import EndOfGameException, InputException, MoveException, IllegalMoveException
-from evaluation import evaluate
+from evaluation import move_detection
 import random
 
 
@@ -57,10 +57,10 @@ class Game:
         while True:
             try:
                 question = '1: ' + u'\U0001F464' + ' VS ' + u'\U0001F464' + '\n\n' + '2: ' + u'\U0001F464' + ' VS ' + u'\U0001f47a'
-                answear = {'1': (self.control, self.control), '2': (self.control, evaluate)}
+                answer = {'1': (self.control, self.control), '2': (self.control, move_detection)}
                 print(question)
                 mode = input()
-                self.select_starter(answear.get(mode))
+                self.select_starter(answer.get(mode))
                 break
             except Exception:
                 continue
@@ -71,7 +71,7 @@ class Game:
                 print(self.current.name + ' TURN')
                 print(self.board)
                 piece_to_node = self.board.pre_processing(self.current)
-                src, dst = self.controls[self.turn]() if self.controls[self.turn] == self.control else self.controls[self.turn](self.board, piece_to_node)
+                src, dst = self.controls[self.turn]() if self.controls[self.turn] == self.control else self.controls[self.turn](self.board, self.current, piece_to_node)
                 if dst not in piece_to_node.get(src, []):
                     raise IllegalMoveException('Illegal Move')
                 else:
