@@ -71,7 +71,7 @@ class Game:
                 print(self.current.name + ' TURN')
                 print(self.board)
                 piece_to_node = self.board.pre_processing(self.current)
-                src, dst = self.controls[self.turn]() if self.controls[self.turn] == self.control else self.controls[self.turn](self.board, self.current, piece_to_node)
+                src, dst = self.controls[self.turn]() if self.controls[self.turn] == self.control else self.controls[self.turn](self.board, self.players, self.current, piece_to_node)
                 if dst not in piece_to_node.get(src, []):
                     raise IllegalMoveException('Illegal Move')
                 else:
