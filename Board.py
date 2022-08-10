@@ -61,15 +61,15 @@ class Board:
             self.kings[0] = src
         elif self.board[dst[0]][dst[1]].top.name == 'BLACK KING':
             self.kings[1] = src
-        if self.board[src[0]][src[1]].down.owner == self.players[0]:
+        if self.board[src[0]][src[1]].get_down().owner == self.players[0]:
             self.white_pieces.append(src)
             self.white_pieces.remove(dst)
-            if self.board[dst[0]][dst[1]].down is not None:
+            if self.board[dst[0]][dst[1]].get_down() is not None:
                 self.black_pieces.append(dst)
         else:
             self.black_pieces.append(src)
             self.black_pieces.remove(dst)
-            if self.board[dst[0]][dst[1]].down is not None:
+            if self.board[dst[0]][dst[1]].get_down() is not None:
                 self.white_pieces.append(dst)
         self.board[src[0]][src[1]].back()
         self.board[dst[0]][dst[1]].back()

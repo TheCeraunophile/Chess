@@ -1,23 +1,30 @@
 from Piece import Piece
+from typing import List
 
 
 class Node:
     def __init__(self, name, index, piece: Piece = None):
         self.name = name
         self.top = piece
-        self.down = None
+        self.down = []
         self.index = index
 
     def add(self, piece: Piece):
-        self.down = self.top
+        self.down.append(self.top)
         self.top = piece
 
     def pick_up(self):
-        self.down = self.top
+        self.down.append(self.top)
+        tmp = self.top
         self.top = None
-        return self.down
+        return tmp
 
     def back(self):
-        self.top = self.down
-        self.down = None
+        try:
+            self.top = self.down.pop()
+        except IndexError:
+            print('error :/\n')
+            return
 
+    def get_down(self):
+        return self.down[len(self.down)-1]
