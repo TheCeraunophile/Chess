@@ -1,8 +1,8 @@
-from Player import Player
+from Player import *
 from Board import Board
 from Exceptions import EndOfGameException, InputException, MoveException, IllegalMoveException
-from evaluation import move_detection
 import random
+from evaluation import move_detection
 
 
 class Game:
@@ -19,14 +19,15 @@ class Game:
         self.board = Board(self.players)
         self.turn = 0
         self.controls = []
+        self.inv_columns = {'A': 0, 'B': 1, 'C': 2, 'D': 3, 'E': 4, 'F': 5, 'G': 6, 'H': 7}
+        self.inv_rows = {'1': 0, '2': 1, '3': 2, '4': 3, '5': 4, '6': 5, '7': 6, '8': 7, }
+        self.columns = {0: 'A', 1: 'B', 2: 'C', 3: 'D', 4: 'E', 5: 'F', 6: 'G', 7: 'H'}
+
         """
         each one of 64 chess houses defined by a number in range 1-8
         and a character in range A-H, so we should convert the input into
         our 2D Array indexes from (0, 0)-(7, 7).
         """
-        self.inv_columns = {'A': 0, 'B': 1, 'C': 2, 'D': 3, 'E': 4, 'F': 5, 'G': 6, 'H': 7}
-        self.inv_rows = {'1': 0, '2': 1, '3': 2, '4': 3, '5': 4, '6': 5, '7': 6, '8': 7, }
-        self.columns = {0: 'A', 1: 'B', 2: 'C', 3: 'D', 4: 'E', 5: 'F', 6: 'G', 7: 'H'}
 
     def control(self):
         src = input('source:    ')
@@ -50,15 +51,15 @@ class Game:
 
     def select_starter(self, funcs):
         rand = random.randint(0, 1)
-        self.controls.append(funcs[rand])
-        self.controls.append(funcs[rand-1])
+        self.controls.append(funcs[0])
+        self.controls.append(funcs[1])
 
     def select_mode(self):
         while True:
             try:
                 question = '1: ' + u'\U0001F464' + ' VS ' + u'\U0001F464' + '\n\n' + '2: ' + u'\U0001F464' + ' VS ' + u'\U0001f47a'
-                answer = {'1': (self.control, self.control), '2': (self.control, move_detection)}
                 print(question)
+                answer = {'1': (self.control, self.control), '2': (self.control, move_detection)}
                 mode = input()
                 self.select_starter(answer.get(mode))
                 break

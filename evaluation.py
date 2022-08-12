@@ -4,73 +4,63 @@ from Exceptions import EndOfGameException
 from typing import List
 
 
-def evaluate(board: Board, player):
+def evaluate(board: Board):
     white, black = board.weight_of_board()
-    return white - black if player.name == 'WHITE' else black - white
+    # if white != black:
+    #     print(board)
+    #     print(black - white)
+    # return white - black if player.name == 'WHITE' else black - white
+    return black - white
 
 
-def minimax(board: Board, players: List[Player], current: Player, depth, is_max, alpha, beta, max_depth):
-    if depth == max_depth:
-        return evaluate(board, current)
-
+def minimax(board: Board, players: List[Player], current: Player, depth, is_max, alpha, beta):
     player = players[0] if current.name == 'BLACK' else players[1]
-
+    if depth == 0:
+        return evaluate(board)
+    try:
+        piece_to_moves = board.pre_processing(player)
+    except EndOfGameException as e:
+        if e.msg == 'DRAW':
+            return 0
+        else:
+            if player.name == 'WHITE':
+                return 10000
+            return -10000
+    ways = []
+    for src in piece_to_moves.keys():
+        dsts = piece_to_moves.get(src)
+        for dst in dsts:
+            ways.append((src, dst))
     if is_max:
         best_value = float('-inf')
-        try:
-            piece_to_moves = board.pre_processing(player)
-        except EndOfGameException as e:
-            if e.msg == 'DRAW':
-                return 0
-            else:
-                return 10000  # maybe -100000
-        else:
-            ways = []
-            for src in piece_to_moves.keys():
-                dsts = piece_to_moves.get(src)
-                for dst in dsts:
-                    ways.append((src, dst))
-            for src, dst in ways:
-                board.move(src, dst)
-                value = minimax(board, players, player, depth+1, False, alpha, beta, max_depth)
-                board.back(src, dst)
-                best_value = max(best_value, value)
-                alpha = max(alpha, best_value)
-                if beta <= alpha:
-                    break
-            return best_value
+        for src, dst in ways:
+            board.move(src, dst)
+            value = minimax(board, players, player, depth - 1, False, alpha, beta)
+            board.back(src, dst)
+            best_value = max(best_value, value)
+            alpha = max(alpha, best_value)
+            if beta <= alpha:
+                return best_value
+        return best_value
     else:
-        best_value = float('inf')
-        try:
-            piece_to_moves = board.pre_processing(player)
-        except EndOfGameException as e:
-            if e.msg == 'DRAW':
-                return 0
-            else:
-                return 10000  # maybe -100000
-        else:
-            ways = []
-            for src in piece_to_moves.keys():
-                dsts = piece_to_moves.get(src)
-                for dst in dsts:
-                    ways.append((src, dst))
-            for src, dst in ways:
-                board.move(src, dst)
-                value = minimax(board, players, player, depth+1, False, alpha, beta, max_depth)
-                board.back(src, dst)
-                best_value = min(best_value, value)
-                beta = min(alpha, best_value)
-                if beta <= alpha:
-                    break
-            return best_value
+        best_value = float('+inf')
+        for src, dst in ways:
+            board.move(src, dst)
+            value = minimax(board, players, player, depth - 1, True, alpha, beta)
+            board.back(src, dst)
+            best_value = min(best_value, value)
+            beta = min(alpha, best_value)
+            if beta <= alpha:
+                return best_value
+        return best_value
 
 
-def find_best_move(board, players: List[Player], current: Player,  ways):
+def find_best_move(board, players: List[Player], current: Player, ways):
     best_value = float('-inf')
     best_move = ways[0]
     for src, dst in ways:
         board.move(src, dst)
-        move_value = minimax(board, players, current, 0, False, float('-inf'), float('inf'), 6)
+        move_value = minimax(board, players, current, 3, True, float('-inf'), float('inf'))
         board.back(src, dst)
         if move_value > best_value:
             best_value = move_value

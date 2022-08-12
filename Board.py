@@ -143,13 +143,13 @@ class Board:
         return result
 
     def post_processing(self, player, src, dst):
-        if self.board[dst[0]][dst[1]].top is not None and self.board[dst[0]][dst[1]].top.name.endswith('KING'):
-            raise IllegalMoveException("Don't Hit The King")
-        else:
-            self.move(src, dst)
+        # if self.board[dst[0]][dst[1]].top is not None and self.board[dst[0]][dst[1]].top.name.endswith('KING'):
+        #     raise IllegalMoveException("Don't Hit The King")
+        # else:
+        self.move(src, dst)
         expand = {self.players[0]: 7, self.players[1]: 0}
         if isinstance(self.board[dst[0]][dst[1]].top, Pawn) and expand.get(self.board[dst[0]][dst[1]].top.owner) == dst[0]:
-            self.board[dst[0]][dst[1]].down = None
+            self.board[dst[0]][dst[1]].down.pop()
             while True:
                 try:
                     list_pieces = {'Q': Queen, 'R': Rook, 'K': Knight, 'B': Bishop}
@@ -169,6 +169,10 @@ class Board:
         for src in self.black_pieces:
             i, j = src
             black_score += self.board[i][j].top.weight
+        # if black_score > white_score:
+        #     print(f'white score{white_score}')
+        #     print(f'black score{black_score}')
+        #     print(self)
         return white_score, black_score
 
     def __str__(self):
