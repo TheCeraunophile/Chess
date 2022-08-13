@@ -3,8 +3,9 @@ from Laws import diagonal_move, polar_move, king_move, knight_move, pawn_move
 
 
 class Piece:
-    def __init__(self, owner: Player):
+    def __init__(self, owner: Player, piece_id):
         self.owner = owner
+        self.id = piece_id
         self.name = ''
         self.shape = ''
         self.weight = 10
@@ -14,8 +15,8 @@ class Piece:
 
 
 class Knight(Piece):
-    def __init__(self, owner: Player):
-        super().__init__(owner)
+    def __init__(self, owner: Player, piece_id):
+        super().__init__(owner, piece_id)
         self.name = 'WHITE KNIGHT' if owner.name == 'WHITE' else 'BLACK KNIGHT'
         self.shape = u'\u265E' if owner.name == 'WHITE' else u'\u2658'
         self.weight = 30
@@ -25,8 +26,8 @@ class Knight(Piece):
 
 
 class King(Piece):
-    def __init__(self, owner: Player):
-        super().__init__(owner)
+    def __init__(self, owner: Player, piece_id):
+        super().__init__(owner, piece_id)
         self.name = 'WHITE KING' if owner.name == 'WHITE' else 'BLACK KING'
         self.shape = u'\u265A' if owner.name == 'WHITE' else u'\u2654'
         self.weight = 900
@@ -36,8 +37,8 @@ class King(Piece):
 
 
 class Rook(Piece):
-    def __init__(self, owner: Player):
-        super().__init__(owner)
+    def __init__(self, owner: Player, piece_id):
+        super().__init__(owner, piece_id)
         self.name = 'WHITE ROOK' if owner.name == 'WHITE' else 'BLACK ROOK'
         self.shape = u'\u265C' if owner.name == 'WHITE' else u'\u2656'
         self.weight = 50
@@ -47,8 +48,8 @@ class Rook(Piece):
 
 
 class Bishop(Piece):
-    def __init__(self, owner: Player):
-        super().__init__(owner)
+    def __init__(self, owner: Player, piece_id):
+        super().__init__(owner, piece_id)
         self.name = 'WHITE BISHOP' if owner.name == 'WHITE' else 'BLACK BISHOP'
         self.shape = u'\u265D' if owner.name == 'WHITE' else u'\u2657'
         self.weight = 30
@@ -58,8 +59,8 @@ class Bishop(Piece):
 
 
 class Queen(Piece):
-    def __init__(self, owner: Player):
-        super().__init__(owner)
+    def __init__(self, owner: Player, piece_id):
+        super().__init__(owner, piece_id)
         self.name = 'WHITE QUEEN' if owner.name == 'WHITE' else 'BLACK QUEEN'
         self.shape = u'\u265B' if owner.name == 'WHITE' else u'\u2655'
         self.weight = 90
@@ -72,8 +73,8 @@ class Queen(Piece):
 
 
 class Pawn(Piece):
-    def __init__(self, owner: Player):
-        super().__init__(owner)
+    def __init__(self, owner: Player, piece_id):
+        super().__init__(owner, piece_id)
         self.name = 'WHITE PAWN' if owner.name == 'WHITE' else 'BLACK PAWN'
         self.shape = u'\u265F' if owner.name == 'WHITE' else u'\u2659'
         self.weight = 10

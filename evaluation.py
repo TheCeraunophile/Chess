@@ -5,11 +5,7 @@ from typing import List
 
 
 def evaluate(board: Board):
-    white, black = board.weight_of_board()
-    # if white != black:
-    #     print(board)
-    #     print(black - white)
-    # return white - black if player.name == 'WHITE' else black - white
+    white, black = board.board_weight
     return black - white
 
 
