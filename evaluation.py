@@ -31,6 +31,7 @@ def minimax(board: Board, players: List[Player], current: Player, depth, is_max,
         best_value = float('-inf')
         for src, dst in ways:
             board.move(src, dst)
+            board.post_processing(player, src, dst)
             value = minimax(board, players, player, depth - 1, False, alpha, beta)
             board.back(src, dst)
             best_value = max(best_value, value)
@@ -56,6 +57,7 @@ def find_best_move(board, players: List[Player], current: Player, ways):
     best_move = ways[0]
     for src, dst in ways:
         board.move(src, dst)
+        board.post_processing(current, src, dst)
         move_value = minimax(board, players, current, 3, True, float('-inf'), float('inf'))
         board.back(src, dst)
         if move_value > best_value:
