@@ -14,12 +14,13 @@ class Piece:
         pass
 
     def __eq__(self, other):
-        if other.owner.name == self.owner.name and other.id == self.id:
+        if other.owner.name == self.owner.name and other.id == self.id and self.name == other.name:
             return True
         return False
 
     def __hash__(self):
-        return hash(self.owner.name) + hash(self.id)
+        return hash(self.owner) + hash(self.id) + hash(self.name)
+
 
 class Knight(Piece):
     def __init__(self, owner: Player, piece_id):
