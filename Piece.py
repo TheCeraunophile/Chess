@@ -13,6 +13,13 @@ class Piece:
     def check_move(self, board, src: tuple):
         pass
 
+    def __eq__(self, other):
+        if other.owner.name == self.owner.name and other.id == self.id:
+            return True
+        return False
+
+    def __hash__(self):
+        return hash(self.owner.name) + hash(self.id)
 
 class Knight(Piece):
     def __init__(self, owner: Player, piece_id):
