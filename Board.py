@@ -89,7 +89,7 @@ class Board:
             player = piece.owner
             self.l_to_p[player][dst] = piece
             self.p_to_l[player][piece] = dst
-            self.board_weight[player] = self.board_weight.get(player) - piece.weight
+            self.board_weight[player] = self.board_weight.get(player) + piece.weight
         self.board[src[0]][src[1]].back()
         self.board[dst[0]][dst[1]].back()
 
@@ -172,9 +172,8 @@ class Board:
 
     def pre_processing(self, player: Player):
         other_player = self.players[1] if player.name == 'WHITE' else self.players[0]
-        restricted = self.restricted_check(player, other_player)
+        restricted = list(set(self.restricted_check(player, other_player)))
         p_to_l = self.p_to_l.get(player)
-        print(restricted)
         result = []
         pieces = list(p_to_l.keys())
         for piece in pieces:
@@ -211,8 +210,8 @@ class Board:
                     else:
                         count = 0 if self.p_to_l.get(player).get(tmp(player, 0), None) is None \
                             else 1 if self.p_to_l.get(player).get(tmp(player, 1), None) is None else 2
-                        self.p_to_l[player][Queen(player, count)] = dst
-                        self.l_to_p[player][dst] = Queen(player, count)
+                        self.p_to_l[player][tmp(player, count)] = dst
+                        self.l_to_p[player][dst] = tmp(player, count)
                     break
                 except Exception:
                     continue

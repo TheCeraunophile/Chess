@@ -5,12 +5,12 @@ from typing import List
 
 
 def evaluate(board: Board):
-    white, black = board.board_weight
+    white = board.board_weight.get(Player('WHITE'))
+    black = board.board_weight.get(Player('BLACK'))
     return black - white
 
 
 def minimax(board: Board, players: List[Player], current: Player, depth, is_max, alpha, beta):
-    print('minimax')
     player = players[0] if current.name == 'BLACK' else players[1]
     if depth == 0:
         return evaluate(board)
@@ -26,7 +26,6 @@ def minimax(board: Board, players: List[Player], current: Player, depth, is_max,
     if is_max:
         best_value = float('-inf')
         for src, dst in ways:
-            board.move(src, dst)
             board.post_processing(player, src, dst)
             value = minimax(board, players, player, depth - 1, False, alpha, beta)
             board.back(src, dst)
@@ -49,15 +48,11 @@ def minimax(board: Board, players: List[Player], current: Player, depth, is_max,
 
 
 def find_best_move(board, players: List[Player], current: Player, ways):
-    # print(board.board[7][1].top.name)
     best_value = float('-inf')
     best_move = None
     for src, dst in ways:
-        # print('find best move')
-        # print(src, dst)
-        board.move(src, dst)
         board.post_processing(current, src, dst)
-        move_value = minimax(board, players, current, 1, True, float('-inf'), float('inf'))
+        move_value = minimax(board, players, current, 5, True, float('-inf'), float('inf'))
         board.back(src, dst)
         if move_value > best_value:
             best_value = move_value
