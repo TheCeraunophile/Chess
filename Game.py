@@ -2,7 +2,7 @@ from Player import *
 from Board import Board
 from Exceptions import EndOfGameException, InputException, MoveException, IllegalMoveException
 import random
-from evaluation import move_detection
+from evaluation import find_best_move
 
 
 class Game:
@@ -59,7 +59,7 @@ class Game:
             try:
                 question = '1: ' + u'\U0001F464' + ' VS ' + u'\U0001F464' + '\n\n' + '2: ' + u'\U0001F464' + ' VS ' + u'\U0001f47a'
                 print(question)
-                answer = {'1': (self.control, self.control), '2': (self.control, move_detection)}
+                answer = {'1': (self.control, self.control), '2': (self.control, find_best_move)}
                 mode = input()
                 self.select_starter(answer.get(mode))
                 break
@@ -73,23 +73,10 @@ class Game:
                 print(self.board)
                 piece_to_node = self.board.pre_processing(self.current)
                 src, dst = self.controls[self.turn]() if self.controls[self.turn] == self.control else self.controls[self.turn](self.board, self.players, self.current, piece_to_node)
-                if dst not in piece_to_node.get(src, []):
+                if (src, dst) not in piece_to_node:
                     raise IllegalMoveException('Illegal Move')
                 else:
                     self.board.post_processing(self.current, src, dst)
-            # src should contain player's piece -> MoveException
-            # dst shouldn't contain player's piece -> MoveException
-            # after piece moving, player's king shouldn't be in check, king in check or only the piece be achmaz
-            # maybe with every movement the player's king still be in check so player lose the game
-
-            # we should be sure that the player can choose at least one movement (before
-            # getting src and dst from the player, called pre-processing)
-            # if yes: game continue if not: player lose the game, or draw
-
-            # Instead of post-processing, we use a pre-processing approach
-            # so that we don't need to analyze the movement of both players' pieces
-            # This approach makes Min-Max tree easier for us
-
             except (MoveException, InputException, IllegalMoveException) as e:
                 print(e.msg)
             except EndOfGameException as e:

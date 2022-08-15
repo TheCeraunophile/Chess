@@ -78,7 +78,7 @@ class Board:
     def back(self, src: tuple, dst: tuple):
         i, j = dst
         piece = self.board[i][j].top
-        player = self.board[i][j].top.owner
+        player = piece.owner
         self.l_to_p[player][src] = piece
         self.l_to_p[player].pop(dst)
         self.p_to_l[player][piece] = src
@@ -95,8 +95,8 @@ class Board:
 
     def move(self, src: tuple, dst: tuple):
         i, j = src
-        player = self.board[i][j].top.owner
         piece = self.board[i][j].top
+        player = piece.owner
         self.l_to_p[player][dst] = piece
         self.l_to_p[player].pop(src)
         self.p_to_l[player][piece] = dst
@@ -147,20 +147,17 @@ class Board:
         r1 = self.p_to_l[other_player].get(Rook(other_player, 0), None)
         r2 = self.p_to_l[other_player].get(Rook(other_player, 1), None)
         r3 = self.p_to_l[other_player].get(Rook(other_player, 2), None)
-        q1 = self.p_to_l[other_player].get(Queen(other_player, 1), None)
-        q2 = self.p_to_l[other_player].get(Queen(other_player, 2), None)
-        for node in (k1, k2, k3, b1, b2, b3):
+        q1 = self.p_to_l[other_player].get(Queen(other_player, 0), None)
+        q2 = self.p_to_l[other_player].get(Queen(other_player, 1), None)
+        for node in (k1, k2, k3, b1, b2, b3, q1, q2):
             if node is not None:
                 if (node[0] + node[1]) % 2 == (i + j) % 2:
                     pieces.append(node)
-        for node in (r1, r2, r3):
+        for node in (r1, r2, r3, q1, q2):
             if node is not None:
                 if node[0] == i or node[1] == j:
-                    pieces.append(node)
-        for node in (q1, q2):
-            if node is not None:
-                if ((node[0] + node[1]) % 2) == ((i + j) % 2) or node[0] == i or node[1] == j:
-                    pieces.append(node)
+                    if node not in pieces:
+                        pieces.append(node)
         if player.name == 'WHITE' and i < 7:
             if j > 0 and self.board[i+1][j-1].top is not None and self.board[i+1][j-1].top.owner.name == 'BLACK PAWN':
                 pieces.append((i+1, j-1))
@@ -178,8 +175,7 @@ class Board:
         restricted = self.restricted_check(player, other_player)
         p_to_l = self.p_to_l.get(player)
         print(restricted)
-        result = {}
-        stick = []
+        result = []
         pieces = list(p_to_l.keys())
         for piece in pieces:
             if isinstance(piece, King):
@@ -188,15 +184,14 @@ class Board:
                 i, j = p_to_l.get(piece)
                 nodes = self.board[i][j].top.check_move(self.board, (i, j))
                 if nodes is not None:
+                    first = [(i, j)] * len(nodes)
                     nodes = self.achmaz_detection(player, (i, j), nodes, restricted)
-                    stick.extend(nodes)
-                    result[(i, j)] = nodes
-        if len(stick) == 0:
+                    result.extend((zip(first, nodes)))
+        if len(result) == 0:
             if self.check(player, restricted):
                 raise EndOfGameException(player.name + ' Lose the Game')
             else:
                 raise EndOfGameException('DRAW')
-        print(result)
         return result
 
     def post_processing(self, player, src, dst):

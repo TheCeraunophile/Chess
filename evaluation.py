@@ -10,11 +10,12 @@ def evaluate(board: Board):
 
 
 def minimax(board: Board, players: List[Player], current: Player, depth, is_max, alpha, beta):
+    print('minimax')
     player = players[0] if current.name == 'BLACK' else players[1]
     if depth == 0:
         return evaluate(board)
     try:
-        piece_to_moves = board.pre_processing(player)
+        ways = board.pre_processing(player)
     except EndOfGameException as e:
         if e.msg == 'DRAW':
             return 0
@@ -22,11 +23,6 @@ def minimax(board: Board, players: List[Player], current: Player, depth, is_max,
             if player.name == 'WHITE':
                 return 10000
             return -10000
-    ways = []
-    for src in piece_to_moves.keys():
-        dsts = piece_to_moves.get(src)
-        for dst in dsts:
-            ways.append((src, dst))
     if is_max:
         best_value = float('-inf')
         for src, dst in ways:
@@ -53,23 +49,17 @@ def minimax(board: Board, players: List[Player], current: Player, depth, is_max,
 
 
 def find_best_move(board, players: List[Player], current: Player, ways):
+    # print(board.board[7][1].top.name)
     best_value = float('-inf')
-    best_move = ways[0]
+    best_move = None
     for src, dst in ways:
+        # print('find best move')
+        # print(src, dst)
         board.move(src, dst)
         board.post_processing(current, src, dst)
-        move_value = minimax(board, players, current, 3, True, float('-inf'), float('inf'))
+        move_value = minimax(board, players, current, 1, True, float('-inf'), float('inf'))
         board.back(src, dst)
         if move_value > best_value:
             best_value = move_value
             best_move = (src, dst)
     return best_move
-
-
-def move_detection(board: Board, players: List[Player], current: Player, valid_nodes):
-    result = []
-    for src in valid_nodes.keys():
-        dsts = valid_nodes.get(src)
-        for dst in dsts:
-            result.append((src, dst))
-    return find_best_move(board, players, current, result)
