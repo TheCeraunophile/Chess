@@ -8,39 +8,9 @@ class Board:
     def __init__(self, players: List[Player]):
         self.players = players
         self.board: List[List[Node]] = []
+        self.kings = {players[0]: (0, 3), players[1]: (7, 3)}
+        self.pieces = {players[0]: [], players[1]: []}
         self.board_weight = {self.players[0]: 1290, self.players[1]: 1290}
-        self.l_to_p = {players[0]: {(0, 0): Rook(players[0], 0), (0, 7): Rook(players[0], 1),
-                                    (0, 1): Knight(players[0], 0), (0, 6): Knight(players[0], 1),
-                                    (0, 2): Bishop(players[0], 0), (0, 5): Bishop(players[0], 1),
-                                    (0, 3): Queen(players[0], 0), (0, 4): King(players[0], 0),
-                                    (1, 0): Pawn(players[0], 0), (1, 1): Pawn(players[0], 1),
-                                    (1, 2): Pawn(players[0], 2), (1, 3): Pawn(players[0], 3),
-                                    (1, 4): Pawn(players[0], 4), (1, 5): Pawn(players[0], 5),
-                                    (1, 6): Pawn(players[0], 6), (1, 7): Pawn(players[0], 7)},
-                       players[1]: {(7, 0): Rook(players[1], 0), (7, 7): Rook(players[1], 1),
-                                    (7, 1): Knight(players[1], 0), (7, 6): Knight(players[1], 1),
-                                    (7, 2): Bishop(players[1], 0), (7, 5): Bishop(players[1], 1),
-                                    (7, 3): Queen(players[1], 0), (7, 4): King(players[1], 0),
-                                    (6, 0): Pawn(players[1], 0), (6, 1): Pawn(players[1], 1),
-                                    (6, 2): Pawn(players[1], 2), (6, 3): Pawn(players[1], 3),
-                                    (6, 4): Pawn(players[1], 4), (6, 5): Pawn(players[1], 5),
-                                    (6, 6): Pawn(players[1], 6), (6, 7): Pawn(players[1], 7)}}
-        self.p_to_l = {players[0]: {Rook(players[0], 0): (0, 0), Rook(players[0], 1): (0, 7),
-                                    Knight(players[0], 0): (0, 1), Knight(players[0], 1): (0, 6),
-                                    Bishop(players[0], 0): (0, 2), Bishop(players[0], 1): (0, 5),
-                                    Queen(players[0], 0): (0, 3), King(players[0], 0): (0, 4),
-                                    Pawn(players[0], 0): (1, 0), Pawn(players[0], 1): (1, 1),
-                                    Pawn(players[0], 2): (1, 2), Pawn(players[0], 3): (1, 3),
-                                    Pawn(players[0], 4): (1, 4), Pawn(players[0], 5): (1, 5),
-                                    Pawn(players[0], 6): (1, 6), Pawn(players[0], 7): (1, 7)},
-                       players[1]: {Rook(players[1], 0): (7, 0), Rook(players[1], 1): (7, 7),
-                                    Knight(players[1], 0): (7, 1), Knight(players[1], 1): (7, 6),
-                                    Bishop(players[1], 0): (7, 2), Bishop(players[1], 1): (7, 5),
-                                    Queen(players[1], 0): (7, 3), King(players[1], 0): (7, 4),
-                                    Pawn(players[1], 0): (6, 0), Pawn(players[1], 1): (6, 1),
-                                    Pawn(players[1], 2): (6, 2), Pawn(players[1], 3): (6, 3),
-                                    Pawn(players[1], 4): (6, 4), Pawn(players[1], 5): (6, 5),
-                                    Pawn(players[1], 6): (6, 6), Pawn(players[1], 7): (6, 7)}}
         self.create_board()
 
     def create_board(self):
@@ -55,148 +25,110 @@ class Board:
 
     def initialization_board(self):
         for i in range(0, 8):
-            self.board[1][i].add(Pawn(self.players[0], i))
+            self.board[1][i].add(Pawn(self.players[0]))
         for i in range(0, 8):
-            self.board[6][i].add(Pawn(self.players[1], i))
-        self.board[0][0].add(Rook(self.players[0], 0))
-        self.board[0][7].add(Rook(self.players[0], 1))
-        self.board[7][0].add(Rook(self.players[1], 0))
-        self.board[7][7].add(Rook(self.players[1], 1))
-        self.board[0][4].add(King(self.players[0], 0))
-        self.board[7][4].add(King(self.players[1], 0))
-        self.board[0][3].add(Queen(self.players[0], 0))
-        self.board[7][3].add(Queen(self.players[1], 0))
-        self.board[0][1].add(Knight(self.players[0], 0))
-        self.board[0][6].add(Knight(self.players[0], 1))
-        self.board[7][1].add(Knight(self.players[1], 0))
-        self.board[7][6].add(Knight(self.players[1], 1))
-        self.board[0][2].add(Bishop(self.players[0], 0))
-        self.board[0][5].add(Bishop(self.players[0], 1))
-        self.board[7][2].add(Bishop(self.players[1], 0))
-        self.board[7][5].add(Bishop(self.players[1], 1))
+            self.board[6][i].add(Pawn(self.players[1]))
+        self.board[0][0].add(Rook(self.players[0]))
+        self.board[0][7].add(Rook(self.players[0]))
+        self.board[7][0].add(Rook(self.players[1]))
+        self.board[7][7].add(Rook(self.players[1]))
+        self.board[0][4].add(King(self.players[0]))
+        self.board[7][4].add(King(self.players[1]))
+        self.board[0][3].add(Queen(self.players[0]))
+        self.board[7][3].add(Queen(self.players[1]))
+        self.board[0][1].add(Knight(self.players[0]))
+        self.board[0][6].add(Knight(self.players[0]))
+        self.board[7][1].add(Knight(self.players[1]))
+        self.board[7][6].add(Knight(self.players[1]))
+        self.board[0][2].add(Bishop(self.players[0]))
+        self.board[0][5].add(Bishop(self.players[0]))
+        self.board[7][2].add(Bishop(self.players[1]))
+        self.board[7][5].add(Bishop(self.players[1]))
 
-    def back(self, src: tuple, dst: tuple):
+    def back(self, src, dst):
         i, j = dst
-        piece = self.board[i][j].top
-        player = piece.owner
-        self.l_to_p[player][src] = piece
-        self.l_to_p[player].pop(dst)
-        self.p_to_l[player][piece] = src
-
-        i, j = dst
+        player = self.board[i][j].top.owner
+        if isinstance(self.board[i][j].top, King):
+            self.kings[player] = src
+        self.pieces[player].remove(dst)
+        self.pieces[player].append(src)
         if self.board[i][j].get_down() is not None:
-            piece = self.board[i][j].get_down()
-            player = piece.owner
-            self.l_to_p[player][dst] = piece
-            self.p_to_l[player][piece] = dst
-            self.board_weight[player] = self.board_weight.get(player) + piece.weight
-        self.board[src[0]][src[1]].back()
-        self.board[dst[0]][dst[1]].back()
+            other_player = self.board[i][j].get_down().owner
+            self.board_weight[other_player] += self.board[i][j].get_down().weight
+            self.pieces[other_player].append(dst)
+        self.board[i][j].back()
+        self.board[src[0]][src[0]].back()
 
     def move(self, src: tuple, dst: tuple):
         i, j = src
-        piece = self.board[i][j].top
-        player = piece.owner
-        self.l_to_p[player][dst] = piece
-        self.l_to_p[player].pop(src)
-        self.p_to_l[player][piece] = dst
-
-        i, j = dst
-        if self.board[i][j].top is not None:
-            piece = self.board[i][j].top
-            player = piece.owner
-            self.l_to_p[player].pop(dst)
-            self.p_to_l[player].pop(piece)
-            self.board_weight[player] = self.board_weight.get(player) - piece.weight
+        player = self.board[i][j].top.owner
+        if isinstance(self.board[i][j].top, King):
+            self.kings[player] = dst
+        self.pieces[player].remove(src)
+        self.pieces[player].append(dst)
+        if self.board[dst[0]][dst[1]].top is not None:
+            other_player = self.board[dst[0]][dst[1]].top.owner
+            self.board_weight[other_player] -= self.board[dst[0]][dst[1]].top.weight
+            self.pieces[other_player].remove(dst)
         tmp = self.board[src[0]][src[1]].pick_up()
         self.board[dst[0]][dst[1]].add(tmp)
 
     def check(self, player, restricted):
-        for piece in restricted:
-            i, j = piece
-            tmp = self.board[i][j].top.check_move(self.board, (i, j))
-            if self.p_to_l.get(player).get(King(player, 0)) in tmp:
-                return True
-        return False
+        pass
+        # for piece in restricted:
+        #     i, j = piece
+        #     tmp = self.board[i][j].top.check_move(self.board, (i, j))
+        #     if self.p_to_l.get(player).get(King(player, 0)) in tmp:
+        #         return True
+        # return False
 
-    def achmaz_detection(self, player, src, dst_s, restricted):
-        result = []
-        for dst in dst_s:
-            self.move(src, dst)
-            if not self.check(player, restricted):
-                result.append(dst)
-            self.back(src, dst)
-        return result
+    #
+    # def achmaz_detection(self, player, src, dst_s, restricted):
+    #     result = []
+    #     for dst in dst_s:
+    #         self.move(src, dst)
+    #         if not self.check(player, restricted):
+    #             result.append(dst)
+    #         self.back(src, dst)
+    #     return result
 
     def restricted_check(self, player, other_player):
-        """
-        find opponent's pieces with check potential
-        :param player: find king location like i, j by player object
-        :param other_player:
-        :return: any location contain an object that can check the king
-        """
-        pieces = []
-        king_loc = self.p_to_l.get(player).get(King(player, 0))
-        i, j = king_loc
-        k1 = self.p_to_l.get(other_player).get(Knight(other_player, 0), None)
-        k2 = self.p_to_l.get(other_player).get(Knight(other_player, 1), None)
-        k3 = self.p_to_l.get(other_player).get(Knight(other_player, 2), None)
-        b1 = self.p_to_l[other_player].get(Bishop(other_player, 0), None)
-        b2 = self.p_to_l[other_player].get(Bishop(other_player, 1), None)
-        b3 = self.p_to_l[other_player].get(Bishop(other_player, 2), None)
-        r1 = self.p_to_l[other_player].get(Rook(other_player, 0), None)
-        r2 = self.p_to_l[other_player].get(Rook(other_player, 1), None)
-        r3 = self.p_to_l[other_player].get(Rook(other_player, 2), None)
-        q1 = self.p_to_l[other_player].get(Queen(other_player, 0), None)
-        q2 = self.p_to_l[other_player].get(Queen(other_player, 1), None)
-        for node in (k1, k2, k3, b1, b2, b3, q1, q2):
-            if node is not None:
-                if (node[0] + node[1]) % 2 == (i + j) % 2:
-                    pieces.append(node)
-        for node in (r1, r2, r3, q1, q2):
-            if node is not None:
-                if node[0] == i or node[1] == j:
-                    if node not in pieces:
-                        pieces.append(node)
-        if player.name == 'WHITE' and i < 7:
-            if j > 0 and self.board[i+1][j-1].top is not None and self.board[i+1][j-1].top.owner.name == 'BLACK PAWN':
-                pieces.append((i+1, j-1))
-            if j < 7 and self.board[i+1][j+1].top is not None and self.board[i+1][j+1].top.owner.name == 'BLACK PAWN':
-                pieces.append((i+1, j+1))
-        elif player.name == 'BLACK' and i > 0:
-            if j > 0 and self.board[i-1][j-1].top is not None and self.board[i-1][j-1].top.owner.name == 'WHITE PAWN':
-                pieces.append((i-1, j-1))
-            if j < 7 and self.board[i-1][j+1].top is not None and self.board[i-1][j+1].top.owner.name == 'WHITE PAWN':
-                pieces.append((i-1, j+1))
-        return pieces
+        rest = []
+        king_loc = self.kings.get(other_player)
+        for src in self.pieces.get(player):
+            if isinstance(self.board[src[0]][src[1]].top, (Queen, Bishop, Rook)):
+                piece = self.board[src[0]][src[1]].top
+                i, j = src
+                if isinstance(piece, Rook):
+                    if i == king_loc[0] or j == king_loc[1]:
+                        rest.append(src)
+                if isinstance(piece, Bishop):
+                    if (i + j) % 2 == (king_loc[0] + king_loc[1]) % 2:
+                        rest.append(src)
+                if isinstance(piece, Queen):
+                    if (i + j) % 2 == (king_loc[0] + king_loc[1]) % 2 or i == king_loc[0] or j == king_loc[1]:
+                        rest.append(src)
+        return rest
 
     def pre_processing(self, player: Player):
         other_player = self.players[1] if player.name == 'WHITE' else self.players[0]
-        restricted = list(set(self.restricted_check(player, other_player)))
-        p_to_l = self.p_to_l.get(player)
-        result = []
-        pieces = list(p_to_l.keys())
-        for piece in pieces:
-            if isinstance(piece, King):
-                i, j = p_to_l.get(piece)
-                nodes = self.board[i][j].top.check_move(self.board, (i, j))
-                if nodes is not None:
-                    first = [(i, j)] * len(nodes)
-                    nodes = self.achmaz_detection(player, (i, j), nodes, self.p_to_l[other_player].values())
-                    result.extend((zip(first, nodes)))
-            else:
-                i, j = p_to_l.get(piece)
-                nodes = self.board[i][j].top.check_move(self.board, (i, j))
-                if nodes is not None:
-                    first = [(i, j)] * len(nodes)
-                    nodes = self.achmaz_detection(player, (i, j), nodes, restricted)
-                    result.extend((zip(first, nodes)))
-        if len(result) == 0:
+        restricted = self.restricted_check(player, other_player)
+        impossible = []
+        pinned = []
+        for src_piece in restricted:
+            tmp_impossible, tmp_pinned = self.board[src_piece[0]][src_piece[1]].top.check_move(self.board, src_piece, True)
+            impossible.extend(tmp_impossible)
+            pinned.extend(tmp_pinned)
+        moves = []
+        for src_piece in self.pieces.get(player):
+            moves.extend(self.board[src_piece[0]][src_piece[1]].top.check_move(self.board, src_piece, False))
+
+        if len(moves) == 0:
             if self.check(player, restricted):
                 raise EndOfGameException(player.name + ' Lose the Game')
             else:
                 raise EndOfGameException('DRAW')
-        return result
+        return moves
 
     def post_processing(self, player, src, dst):
         self.move(src, dst)
@@ -208,15 +140,7 @@ class Board:
                     list_pieces = {'Q': Queen, 'R': Rook, 'K': Knight, 'B': Bishop}
                     promoted_piece = input('Q: queen R: rook K: knight B: bishop\n')
                     tmp = list_pieces.get(promoted_piece)
-                    if isinstance(tmp, Queen):
-                        count = 0 if self.p_to_l.get(player).get(Queen(player, 0), None) is None else 1
-                        self.p_to_l[player][Queen(player, count)] = dst
-                        self.l_to_p[player][dst] = Queen(player, count)
-                    else:
-                        count = 0 if self.p_to_l.get(player).get(tmp(player, 0), None) is None \
-                            else 1 if self.p_to_l.get(player).get(tmp(player, 1), None) is None else 2
-                        self.p_to_l[player][tmp(player, count)] = dst
-                        self.l_to_p[player][dst] = tmp(player, count)
+                    self.board[dst[0]][dst[1]].top = tmp(player)
                     break
                 except Exception:
                     continue
