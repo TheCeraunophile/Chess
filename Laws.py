@@ -21,43 +21,76 @@ def minus2(a):
     return a - 2
 
 
-def diagonal_move(board, player: Player, src: tuple):
+def diagonal_move(board, player: Player, src: tuple, check_pinned):
     result = []
-    result.extend(direct_move(player, board, src, plus, plus))
-    result.extend(direct_move(player, board, src, plus, minus))
-    result.extend(direct_move(player, board, src, minus, plus))
-    result.extend(direct_move(player, board, src, minus, minus))
-    return result
+    ghost = []
+    tmp_result, temp_ghost = direct_move(player, board, src, plus, plus, check_pinned)
+    result.extend(tmp_result)
+    ghost.extend(temp_ghost)
+    tmp_result, temp_ghost = direct_move(player, board, src, plus, minus, check_pinned)
+    result.extend(tmp_result)
+    ghost.extend(temp_ghost)
+    tmp_result, temp_ghost = direct_move(player, board, src, minus, plus, check_pinned)
+    result.extend(tmp_result)
+    ghost.extend(temp_ghost)
+    tmp_result, temp_ghost = direct_move(player, board, src, minus, minus, check_pinned)
+    result.extend(tmp_result)
+    ghost.extend(temp_ghost)
+    return result, ghost
 
 
-def polar_move(board, player: Player, src: tuple):
+def polar_move(board, player: Player, src: tuple, check_pinned):
     result = []
-    result.extend(direct_move(player, board, src, plus, feedback))
-    result.extend(direct_move(player, board, src, feedback, plus))
-    result.extend(direct_move(player, board, src, minus, feedback))
-    result.extend(direct_move(player, board, src, feedback, minus))
-    return result
+    ghost = []
+    tmp_result, temp_ghost = direct_move(player, board, src, plus, feedback, check_pinned)
+    result.extend(tmp_result)
+    ghost.extend(temp_ghost)
+    tmp_result, temp_ghost = direct_move(player, board, src, feedback, plus, check_pinned)
+    result.extend(tmp_result)
+    ghost.extend(temp_ghost)
+    tmp_result, temp_ghost = direct_move(player, board, src, minus, feedback, check_pinned)
+    result.extend(tmp_result)
+    ghost.extend(temp_ghost)
+    tmp_result, temp_ghost = direct_move(player, board, src, feedback, minus, check_pinned)
+    result.extend(tmp_result)
+    ghost.extend(temp_ghost)
+    return result, ghost
 
 
-def direct_move(player: Player, board, src: tuple, update_i, update_j):
+def direct_move(player: Player, board, src: tuple, update_i, update_j, check_pinned):
     i, j = src
     result = []
     while True:
-        try:
-            i = update_i(i)
-            j = update_j(j)
-            if i < 0 or i > 7 or j < 0 or j > 7:
-                raise Exception
-            if board[i][j].top is None:
-                result.append((i, j))
-            elif board[i][j].top.owner != player:
-                result.append((i, j))
-                break
-            else:
-                break
-        except Exception:
-            break
-    return result
+        i = update_i(i)
+        j = update_j(j)
+        if i < 0 or i > 7 or j < 0 or j > 7:
+            return result, []
+        if board[i][j].top is None:
+            result.append((src, (i, j)))
+        elif board[i][j].top.owner != player:
+            result.append((src, (i, j)))
+            if check_pinned:
+                return result, find_ghost(player, board, (i, j), update_i, update_j)
+            return result, []
+        else:
+            return result, []
+
+
+def find_ghost(player: Player, board, src: tuple, update_i, update_j):
+    i, j = src
+    ghost = []
+    while True:
+        i = update_i(i)
+        j = update_j(j)
+        if i < 0 or i > 7 or j < 0 or j > 7:
+            return []
+        if board[i][j].top is None:
+            ghost.append((src, (i, j)))
+        elif board[i][j].top.owner != player and board[i][j].top.name.endswith('KING'):
+            ghost.append((src, (i, j)))
+            return ghost
+        else:
+            return []
 
 
 def check_range(input_list):
@@ -71,7 +104,8 @@ def check_range(input_list):
 def king_move(board, player, src: tuple):
     i, j = src
     result = []
-    un_checked_result = check_range([(i, j+1), (i, j-1), (i+1, j), (i-1, j), (i+1, j+1), (i-1, j-1), (i-1, j+1), (i+1, j-1)])
+    un_checked_result = check_range([(i, j+1), (i, j-1), (i+1, j), (i-1, j),
+                                     (i+1, j+1), (i-1, j-1), (i-1, j+1), (i+1, j-1)])
     for i in un_checked_result:
         if board[i[0]][i[1]].top is None or board[i[0]][i[1]].top.owner != player:
             result.append(i)
@@ -81,7 +115,8 @@ def king_move(board, player, src: tuple):
 def knight_move(board, player, src: tuple):
     result = []
     i, j = src
-    first_targets = check_range([(i+2, j+1), (i+2, j-1), (i-2, j+1), (i-2, j-1), (i+1, j+2), (i-1, j+2), (i+1, j-2), (i-1, j-2)])
+    first_targets = check_range([(i+2, j+1), (i+2, j-1), (i-2, j+1), (i-2, j-1),
+                                 (i+1, j+2), (i-1, j+2), (i+1, j-2), (i-1, j-2)])
     for node in first_targets:
         i, j = node
         if 0 <= i <= 7 and 0 <= j <= 7 and (board[i][j].top is None or (board[i][j].top.owner != player)):
