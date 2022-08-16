@@ -1,7 +1,8 @@
-from Exceptions import EndOfGameException, IllegalMoveException
+from Exceptions import EndOfGameException
 from typing import List
 from Piece import *
 from Node import Node
+from itertools import product
 
 
 class Board:
@@ -9,7 +10,14 @@ class Board:
         self.players = players
         self.board: List[List[Node]] = []
         self.kings = {players[0]: (0, 3), players[1]: (7, 3)}
+        columns = [0, 1, 2, 3, 4, 5, 6, 7]
+        white_row = [0, 1]
+        black_row = [6, 7]
         self.pieces = {players[0]: [], players[1]: []}
+        for i, j in product(white_row, columns):
+            self.pieces[players[0]].append((i, j))
+        for i, j in product(black_row, columns):
+            self.pieces[players[1]].append((i, j))
         self.board_weight = {self.players[0]: 1290, self.players[1]: 1290}
         self.create_board()
 
@@ -73,25 +81,6 @@ class Board:
         tmp = self.board[src[0]][src[1]].pick_up()
         self.board[dst[0]][dst[1]].add(tmp)
 
-    def check(self, player, restricted):
-        pass
-        # for piece in restricted:
-        #     i, j = piece
-        #     tmp = self.board[i][j].top.check_move(self.board, (i, j))
-        #     if self.p_to_l.get(player).get(King(player, 0)) in tmp:
-        #         return True
-        # return False
-
-    #
-    # def achmaz_detection(self, player, src, dst_s, restricted):
-    #     result = []
-    #     for dst in dst_s:
-    #         self.move(src, dst)
-    #         if not self.check(player, restricted):
-    #             result.append(dst)
-    #         self.back(src, dst)
-    #     return result
-
     def restricted_check(self, player, other_player):
         rest = []
         king_loc = self.kings.get(other_player)
@@ -115,6 +104,7 @@ class Board:
         restricted = self.restricted_check(player, other_player)
         impossible = []
         pinned = []
+        check = False
         for src_piece in restricted:
             tmp_impossible, tmp_pinned = self.board[src_piece[0]][src_piece[1]].top.check_move(self.board, src_piece, True)
             impossible.extend(tmp_impossible)
@@ -122,9 +112,16 @@ class Board:
         moves = []
         for src_piece in self.pieces.get(player):
             moves.extend(self.board[src_piece[0]][src_piece[1]].top.check_move(self.board, src_piece, False))
-
+        # remove any movement (in moves list) that has a src equal to pinned.values()
+        # remove any king move with dst that exist in impossible.values()
+        # if king src in impossible.values(): keep movement with king src,
+        #       keep movement with dst equal to hunter src, keep movement with dst placed in ghost list.
+        #           Except these, remove any movement.
+        # now check the opponent's knight and pawn.
+        # if there is any pawn or knight attack to the king, keep movement with king src,
+        #       keep movement with dst equal to hunter src
         if len(moves) == 0:
-            if self.check(player, restricted):
+            if check:
                 raise EndOfGameException(player.name + ' Lose the Game')
             else:
                 raise EndOfGameException('DRAW')
