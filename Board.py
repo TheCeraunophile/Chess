@@ -178,7 +178,12 @@ class Board:
         pieces = list(p_to_l.keys())
         for piece in pieces:
             if isinstance(piece, King):
-                pass
+                i, j = p_to_l.get(piece)
+                nodes = self.board[i][j].top.check_move(self.board, (i, j))
+                if nodes is not None:
+                    first = [(i, j)] * len(nodes)
+                    nodes = self.achmaz_detection(player, (i, j), nodes, self.p_to_l[other_player].values())
+                    result.extend((zip(first, nodes)))
             else:
                 i, j = p_to_l.get(piece)
                 nodes = self.board[i][j].top.check_move(self.board, (i, j))

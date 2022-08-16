@@ -2,6 +2,7 @@ from Board import Board
 from Player import Player
 from Exceptions import EndOfGameException
 from typing import List
+import random
 
 
 def evaluate(board: Board):
@@ -21,12 +22,12 @@ def minimax(board: Board, players: List[Player], current: Player, depth, is_max,
             return 0
         else:
             if player.name == 'WHITE':
-                return 10000
-            return -10000
+                return 1000
+            return -1000
     if is_max:
         best_value = float('-inf')
         for src, dst in ways:
-            board.post_processing(player, src, dst)
+            board.move(src, dst)
             value = minimax(board, players, player, depth - 1, False, alpha, beta)
             board.back(src, dst)
             best_value = max(best_value, value)
@@ -51,8 +52,8 @@ def find_best_move(board, players: List[Player], current: Player, ways):
     best_value = float('-inf')
     best_move = None
     for src, dst in ways:
-        board.post_processing(current, src, dst)
-        move_value = minimax(board, players, current, 5, True, float('-inf'), float('inf'))
+        board.move(src, dst)
+        move_value = minimax(board, players, current, 3, True, float('-inf'), float('inf'))
         board.back(src, dst)
         if move_value > best_value:
             best_value = move_value

@@ -69,6 +69,7 @@ class Game:
     def main_loop(self):
         while True:
             try:
+                print(str(self.board.board_weight[Player('WHITE')]) + ' ' + str(self.board.board_weight[Player('BLACK')]))
                 print(self.current.name + ' TURN')
                 print(self.board)
                 piece_to_node = self.board.pre_processing(self.current)
