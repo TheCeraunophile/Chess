@@ -3,6 +3,7 @@ from typing import List
 from Piece import *
 from Node import Node
 from itertools import product
+from Laws import king_move
 
 
 class Board:
@@ -81,56 +82,76 @@ class Board:
         tmp = self.board[src[0]][src[1]].pick_up()
         self.board[dst[0]][dst[1]].add(tmp)
 
-    def restricted_check(self, player, other_player):
-        rest = []
-        king_loc = self.kings.get(other_player)
-        for src in self.pieces.get(player):
-            if isinstance(self.board[src[0]][src[1]].top, (Queen, Bishop, Rook)):
-                piece = self.board[src[0]][src[1]].top
-                i, j = src
-                if isinstance(piece, Rook):
-                    if i == king_loc[0] or j == king_loc[1]:
-                        rest.append(src)
-                if isinstance(piece, Bishop):
-                    if (i + j) % 2 == (king_loc[0] + king_loc[1]) % 2:
-                        rest.append(src)
-                if isinstance(piece, Queen):
-                    if (i + j) % 2 == (king_loc[0] + king_loc[1]) % 2 or i == king_loc[0] or j == king_loc[1]:
-                        rest.append(src)
-        return rest
+    def status(self, player, other_player):
+        king_loc = self.kings.get(player)
+        reserved_nodes = []
+        pinned_nodes = []
+        for src in self.pieces.get(other_player):
+            if not isinstance(self.board[src[0]][src[1]].top, (Knight, Pawn)):
+                reserved, pinned = self.board[src[0]][src[1]].top.check_move(self.board, src, True)
+                reserved_nodes.extend(reserved)
+                if pinned is not None:
+                    pinned_nodes.append(pinned)
+
+        knight_or_pawn_hunter = ()
+
+        king_hunter_positions = knight_move(self.board, player, king_loc)
+        for node in king_hunter_positions:
+            if isinstance(self.board[node[0]][node[1]].top, Knight) \
+                    and self.board[node[0]][node[1]].top.owner == other_player:
+                knight_or_pawn_hunter = node
+                return reserved_nodes, pinned_nodes, knight_or_pawn_hunter
+        pawn_hunter_position = king_move(self.board, player, king_loc)
+        for node in pawn_hunter_position:
+            if isinstance(self.board[node[0]][node[1]].top, Pawn) \
+                    and king_loc in self.board[node[0]][node[1]].top.check_move(self.board, node, False):
+                knight_or_pawn_hunter = node
+                return reserved_nodes, pinned_nodes, knight_or_pawn_hunter
+        return reserved_nodes, pinned_nodes, knight_or_pawn_hunter
 
     def pre_processing(self, player: Player):
         other_player = self.players[1] if player.name == 'WHITE' else self.players[0]
-        restricted = self.restricted_check(player, other_player)
-        impossible = []
-        pinned = []
-        check = False
-        for src_piece in restricted:
-            tmp_impossible, tmp_pinned = self.board[src_piece[0]][src_piece[1]].top.check_move(self.board, src_piece, True)
-            impossible.extend(tmp_impossible)
-            pinned.extend(tmp_pinned)
+        reserved, pinned, k_p_hunter = self.status(player, other_player)
         moves = []
         for src_piece in self.pieces.get(player):
             moves.extend(self.board[src_piece[0]][src_piece[1]].top.check_move(self.board, src_piece, False))
+
         # remove any movement (in moves list) that has a src equal to pinned.values()
+        moves = [move for move in moves if move[0] not in pinned]
+
         # remove any king move with dst that exist in impossible.values()
+        # this contains a little bug
+        moves = [move for move in moves if move[0] != self.kings.get(player)
+                 or move[1] not in [x[1] for x in reserved]]
+
         # if king src in impossible.values(): keep movement with king src,
-        #       keep movement with dst equal to hunter src, keep movement with dst placed in ghost list.
-        #           Except these, remove any movement.
+        #     keep movement of other pieces with dst placed in impossible list.
+        #     keep movement with dst equal to hunter src,
+        #     Except these, remove any movement.
+
+        check = False
+        if self.kings.get(player) in [x[1] for x in reserved]:
+            check = True
+            moves = [move for move in moves if move[0] == self.kings.get(player)
+                     or (move[0]) != self.kings.get(player) and move[1] in [re[1] for re in reserved]
+                     ]
+
         # now check the opponent's knight and pawn.
         # if there is any pawn or knight attack to the king, keep movement with king src,
         #       keep movement with dst equal to hunter src
+
         if len(moves) == 0:
             if check:
-                raise EndOfGameException(player.name + ' Lose the Game')
+                raise EndOfGameException('Easy' if player.name == self.players[0] else 'Shame on you')
             else:
-                raise EndOfGameException('DRAW')
+                raise EndOfGameException(':/')
         return moves
 
     def post_processing(self, player, src, dst):
         self.move(src, dst)
         expand = {self.players[0]: 7, self.players[1]: 0}
-        if isinstance(self.board[dst[0]][dst[1]].top, Pawn) and expand.get(self.board[dst[0]][dst[1]].top.owner) == dst[0]:
+        if isinstance(self.board[dst[0]][dst[1]].top, Pawn) \
+                and expand.get(self.board[dst[0]][dst[1]].top.owner) == dst[0]:
             self.board[dst[0]][dst[1]].down.pop()
             while True:
                 try:
@@ -145,11 +166,11 @@ class Board:
     def __str__(self):
         line_buffer = '   A  B  C  D  E  F  G  H'
         for i in range(7, -1, -1):
-            line_buffer += '\n' + str(i+1) + '  '
+            line_buffer += '\n' + str(i + 1) + '  '
             for j in range(8):
                 tmp = self.board[i][j].top
                 if tmp is None:
-                    if (i+j) % 2 == 0:
+                    if (i + j) % 2 == 0:
                         line_buffer += u'\u25FB'
                     else:
                         line_buffer += u'\u25FC'
