@@ -73,10 +73,25 @@ class Queen(Piece):
         self.weight = 90
 
     def check_move(self, board, src: tuple, check_pinned):
-        tmp = []
-        tmp.extend(polar_move(board, self.owner, src, check_pinned))
-        tmp.extend(diagonal_move(board, self.owner, src, check_pinned))
-        return tmp
+        reserved = []
+        pinned = None
+        check_path = None
+        reserved1, pinned1, check_path1 = polar_move(board, self.owner, src, check_pinned)
+        reserved.extend(reserved1)
+        if pinned1:
+            pinned = [pinned1]
+        if check_path1:
+            check_path = [check_path1]
+        reserved2, pinned2, check_path2 = diagonal_move(board, self.owner, src, check_pinned)
+        reserved.extend(reserved2)
+        if pinned2:
+            pinned.append(pinned2)
+        if check_path2:
+            if check_path is None:
+                check_path = [check_path2]
+            else:
+                check_path.append(check_path2)
+        return reserved, pinned, check_path
 
 
 class Pawn(Piece):
@@ -87,5 +102,4 @@ class Pawn(Piece):
         self.weight = 10
 
     def check_move(self, board, src: tuple, check_pinned):
-        result = pawn_move(board, self.owner, src)
-        return result
+        return pawn_move(board, self.owner, src)
