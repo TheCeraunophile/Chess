@@ -1,9 +1,9 @@
+import time
 from Exceptions import EndOfGameException
 from typing import List
 from Piece import *
 from Node import Node
 from itertools import product
-from Laws import king_move
 
 
 class Board:
@@ -82,67 +82,66 @@ class Board:
         tmp = self.board[src[0]][src[1]].pick_up()
         self.board[dst[0]][dst[1]].add(tmp)
 
-    def status(self, player, other_player):
-        king_loc = self.kings.get(player)
+    def status(self, opponent):
         reserved_nodes = []
         pinned_nodes = []
-        for src in self.pieces.get(other_player):
-            if not isinstance(self.board[src[0]][src[1]].top, (Knight, Pawn)):
-                reserved, pinned = self.board[src[0]][src[1]].top.check_move(self.board, src, True)
+        detected_check = []
+        n_k_p = []
+        for src in self.pieces.get(opponent):
+            if not isinstance(self.board[src[0]][src[1]].top, (Knight, Pawn, King)):
+                reserved, pinned, check = self.board[src[0]][src[1]].top.check_move(self.board, src, True)
                 reserved_nodes.extend(reserved)
                 if pinned is not None:
                     pinned_nodes.append(pinned)
-
-        knight_or_pawn_hunter = ()
-
-        king_hunter_positions = knight_move(self.board, player, king_loc)
-        for node in king_hunter_positions:
-            if isinstance(self.board[node[0]][node[1]].top, Knight) \
-                    and self.board[node[0]][node[1]].top.owner == other_player:
-                knight_or_pawn_hunter = node
-                return reserved_nodes, pinned_nodes, knight_or_pawn_hunter
-        pawn_hunter_position = king_move(self.board, player, king_loc)
-        for node in pawn_hunter_position:
-            if isinstance(self.board[node[0]][node[1]].top, Pawn) \
-                    and king_loc in self.board[node[0]][node[1]].top.check_move(self.board, node, False):
-                knight_or_pawn_hunter = node
-                return reserved_nodes, pinned_nodes, knight_or_pawn_hunter
-        return reserved_nodes, pinned_nodes, knight_or_pawn_hunter
+                if check is not None:
+                    detected_check.append(check)
+                continue
+            if isinstance(self.board[src[0]][src[1]].top, Pawn):
+                tmp, reserved = self.board[src[0]][src[1]].top.check_move(self.board, src, True)
+                if tmp:
+                    reserved_nodes.extend(reserved)
+                else:
+                    n_k_p.append(reserved)
+                continue
+            reserved = self.board[src[0]][src[1]].top.check_move(self.board, src, True)
+            n_k_p.extend(reserved)
+        return reserved_nodes, pinned_nodes, detected_check, n_k_p
 
     def pre_processing(self, player: Player):
-        other_player = self.players[1] if player.name == 'WHITE' else self.players[0]
-        reserved, pinned, k_p_hunter = self.status(player, other_player)
+        p1 = time.time()
+        opponent = self.players[1] if player.name == 'WHITE' else self.players[0]
+        reserved, pinned, check_path, nkp = self.status(opponent)
+        check = False
         moves = []
         for src_piece in self.pieces.get(player):
-            moves.extend(self.board[src_piece[0]][src_piece[1]].top.check_move(self.board, src_piece, False))
+            result = self.board[src_piece[0]][src_piece[1]].top.check_move(self.board, src_piece, False)
+            if isinstance(self.board[src_piece[0]][src_piece[1]].top, (Pawn, Bishop, Rook, Queen)):
+                moves.extend(result[0])
+                continue
+            if isinstance(self.board[src_piece[0]][src_piece[1]].top, (King, Knight)):
+                moves.extend(result)
+        for pin in pinned:
+            moves = [move for move in moves if move[0] != pin[len(pin)-1] or move[1] in pin]
 
-        # remove any movement (in moves list) that has a src equal to pinned.values()
-        moves = [move for move in moves if move[0] not in pinned]
-
-        # remove any king move with dst that exist in impossible.values()
-        # this contains a little bug
-        moves = [move for move in moves if move[0] != self.kings.get(player)
-                 or move[1] not in [x[1] for x in reserved]]
-
-        # if king src in impossible.values(): keep movement with king src,
-        #     keep movement of other pieces with dst placed in impossible list.
-        #     keep movement with dst equal to hunter src,
-        #     Except these, remove any movement.
-
-        check = False
-        if self.kings.get(player) in [x[1] for x in reserved]:
+        for path in check_path:
             check = True
             moves = [move for move in moves if move[0] == self.kings.get(player)
-                     or (move[0]) != self.kings.get(player) and move[1] in [re[1] for re in reserved]
-                     ]
+                     or move[1] == path[0]
+                     or move[1] in [x for x in path]]
 
-        # now check the opponent's knight and pawn.
-        # if there is any pawn or knight attack to the king, keep movement with king src,
-        #       keep movement with dst equal to hunter src
+        if self.kings.get(player) in nkp:
+            check = True
+            for node in nkp:
+                if node == self.kings.get(player):
+                    moves = [move for move in moves if move[0] == self.kings.get(player)
+                             or move[1] == node]
 
+        moves = [move for move in moves if move[0] != self.kings.get(player) or move[1] not in reserved]
+        p2 = time.time()
+        print(p2 - p1)
         if len(moves) == 0:
             if check:
-                raise EndOfGameException('Easy' if player.name == self.players[0] else 'Shame on you')
+                raise EndOfGameException(opponent.name + ' Won the game')
             else:
                 raise EndOfGameException(':/')
         return moves
