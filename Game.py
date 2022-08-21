@@ -57,7 +57,7 @@ class Game:
     def select_mode(self):
         while True:
             try:
-                question = '1: ' + u'\U0001F464' + ' VS ' + u'\U0001F464' + '\n\n' + '2: ' + u'\U0001F464' + ' VS ' + u'\U0001f47a'
+                question = '1: ' + u'\U0001F464' + ' VS ' + u'\U0001F464' + '\n\n' + '2: ' + u'\U0001F464' + ' VS ' + u'\U0001F418'
                 print(question)
                 answer = {'1': (self.control, self.control), '2': (self.control, find_best_move)}
                 mode = input()

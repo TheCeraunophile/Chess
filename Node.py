@@ -24,7 +24,6 @@ class Node:
             self.top = self.down.pop()
         except IndexError:
             print('error :/\n')
-            return
 
     def get_down(self):
         return self.down[len(self.down)-1]

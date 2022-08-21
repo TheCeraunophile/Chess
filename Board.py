@@ -4,7 +4,6 @@ from typing import List
 from Piece import *
 from Node import Node
 from itertools import product
-from copy import copy
 
 
 class Board:
@@ -67,10 +66,9 @@ class Board:
             self.board_weight[other_player] += self.board[i][j].get_down().weight
             self.pieces[other_player].append(dst)
         self.board[i][j].back()
-        self.board[src[0]][src[0]].back()
+        self.board[src[0]][src[1]].back()
 
     def move(self, src: tuple, dst: tuple):
-        p1 = time()
         i, j = src
         player = self.board[i][j].top.owner
         if isinstance(self.board[i][j].top, King):
@@ -83,8 +81,6 @@ class Board:
             self.pieces[other_player].remove(dst)
         tmp = self.board[src[0]][src[1]].pick_up()
         self.board[dst[0]][dst[1]].add(tmp)
-        p2 = time()
-        print(p2-p1)
 
     def status(self, opponent):
         reserved_nodes = []
@@ -110,13 +106,8 @@ class Board:
         return reserved_nodes, pinned_nodes, detected_check, n_k_p
 
     def pre_processing(self, player: Player):
-        p1 = time()
         opponent = self.players[1] if player.name == 'WHITE' else self.players[0]
         reserved, pinned, check_path, nkp = self.status(opponent)
-        # print('reserved modes ', reserved)
-        # print('pinned', pinned)
-        # print('check - path', check_path)
-        # print('nkp', nkp)
         check = False
         moves = []
         for src_piece in self.pieces.get(player):
@@ -126,8 +117,6 @@ class Board:
                 continue
             if isinstance(self.board[src_piece[0]][src_piece[1]].top, (King, Knight)):
                 moves.extend(result)
-        # moves_src = list(set([move[0] for move in moves]))
-        # moves_dst = list(set([move[1] for move in moves]))
         tmp_moves = moves[:]
         jj = list(set(move[1] for move in reserved))
         for move in tmp_moves:
@@ -156,9 +145,6 @@ class Board:
                 for path in tmp_moves:
                     if path[0] != self.kings.get(player) and path[1] != move[0]:
                         moves.remove(path)
-        # print('moves', moves)
-        p2 = time()
-        print(p2 - p1)
         if len(moves) == 0:
             if check:
                 raise EndOfGameException(opponent.name + ' Won the game')
