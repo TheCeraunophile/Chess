@@ -74,23 +74,20 @@ class Queen(Piece):
 
     def check_move(self, board, src: tuple, check_pinned):
         reserved = []
-        pinned = None
-        check_path = None
+        pinned = []
+        check_path = []
         reserved1, pinned1, check_path1 = polar_move(board, self.owner, src, check_pinned)
         reserved.extend(reserved1)
         if pinned1:
-            pinned = [pinned1]
+            pinned.append(pinned1)
         if check_path1:
-            check_path = [check_path1]
+            check_path.append(check_path1)
         reserved2, pinned2, check_path2 = diagonal_move(board, self.owner, src, check_pinned)
         reserved.extend(reserved2)
         if pinned2:
             pinned.append(pinned2)
         if check_path2:
-            if check_path is None:
-                check_path = [check_path2]
-            else:
-                check_path.append(check_path2)
+            check_path.append(check_path2)
         return reserved, pinned, check_path
 
 

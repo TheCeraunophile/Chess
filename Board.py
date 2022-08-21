@@ -1,16 +1,17 @@
-import time
+from time import time
 from Exceptions import EndOfGameException
 from typing import List
 from Piece import *
 from Node import Node
 from itertools import product
+from copy import copy
 
 
 class Board:
     def __init__(self, players: List[Player]):
         self.players = players
         self.board: List[List[Node]] = []
-        self.kings = {players[0]: (0, 3), players[1]: (7, 3)}
+        self.kings = {players[0]: (0, 4), players[1]: (7, 4)}
         columns = [0, 1, 2, 3, 4, 5, 6, 7]
         white_row = [0, 1]
         black_row = [6, 7]
@@ -69,6 +70,7 @@ class Board:
         self.board[src[0]][src[0]].back()
 
     def move(self, src: tuple, dst: tuple):
+        p1 = time()
         i, j = src
         player = self.board[i][j].top.owner
         if isinstance(self.board[i][j].top, King):
@@ -81,6 +83,8 @@ class Board:
             self.pieces[other_player].remove(dst)
         tmp = self.board[src[0]][src[1]].pick_up()
         self.board[dst[0]][dst[1]].add(tmp)
+        p2 = time()
+        print(p2-p1)
 
     def status(self, opponent):
         reserved_nodes = []
@@ -98,19 +102,21 @@ class Board:
                 continue
             if isinstance(self.board[src[0]][src[1]].top, Pawn):
                 tmp, reserved = self.board[src[0]][src[1]].top.check_move(self.board, src, True)
-                if tmp:
+                if reserved:
                     reserved_nodes.extend(reserved)
-                else:
-                    n_k_p.append(reserved)
                 continue
             reserved = self.board[src[0]][src[1]].top.check_move(self.board, src, True)
             n_k_p.extend(reserved)
         return reserved_nodes, pinned_nodes, detected_check, n_k_p
 
     def pre_processing(self, player: Player):
-        p1 = time.time()
+        p1 = time()
         opponent = self.players[1] if player.name == 'WHITE' else self.players[0]
         reserved, pinned, check_path, nkp = self.status(opponent)
+        # print('reserved modes ', reserved)
+        # print('pinned', pinned)
+        # print('check - path', check_path)
+        # print('nkp', nkp)
         check = False
         moves = []
         for src_piece in self.pieces.get(player):
@@ -120,24 +126,38 @@ class Board:
                 continue
             if isinstance(self.board[src_piece[0]][src_piece[1]].top, (King, Knight)):
                 moves.extend(result)
+        # moves_src = list(set([move[0] for move in moves]))
+        # moves_dst = list(set([move[1] for move in moves]))
+        tmp_moves = moves[:]
+        jj = list(set(move[1] for move in reserved))
+        for move in tmp_moves:
+            if move[0] == self.kings.get(player) and move[1] in jj:
+                moves.remove(move)
+        tmp_moves = moves[:]
         for pin in pinned:
-            moves = [move for move in moves if move[0] != pin[len(pin)-1] or move[1] in pin]
-
+            if pin:
+                pinned_piece = pin[0][len(pin[0])-1]
+                for move in tmp_moves:
+                    if move[0] == pinned_piece and move[1] not in pin[0]:
+                        moves.remove(move)
+        tmp_moves = moves[:]
         for path in check_path:
-            check = True
-            moves = [move for move in moves if move[0] == self.kings.get(player)
-                     or move[1] == path[0]
-                     or move[1] in [x for x in path]]
-
-        if self.kings.get(player) in nkp:
-            check = True
-            for node in nkp:
-                if node == self.kings.get(player):
-                    moves = [move for move in moves if move[0] == self.kings.get(player)
-                             or move[1] == node]
-
-        moves = [move for move in moves if move[0] != self.kings.get(player) or move[1] not in reserved]
-        p2 = time.time()
+            if path:
+                check = True
+                for move in tmp_moves:
+                    if move[0] == self.kings.get(player) or move[1] in [x[1] for x in path] or move[1] == path[0][0]:
+                        continue
+                    else:
+                        moves.remove(move)
+        tmp_moves = moves[:]
+        for move in nkp:
+            if move[1] == self.kings.get(player):
+                check = True
+                for path in tmp_moves:
+                    if path[0] != self.kings.get(player) and path[1] != move[0]:
+                        moves.remove(path)
+        # print('moves', moves)
+        p2 = time()
         print(p2 - p1)
         if len(moves) == 0:
             if check:

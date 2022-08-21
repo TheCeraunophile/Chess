@@ -79,7 +79,7 @@ def direct_move(player: Player, board, src: tuple, update_i, update_j, check_pin
                 if board[i][j].top.name.endswith('KING'):
                     return reserved, None, reserved
                 ghost.append((i, j))
-                return reserved, find_ghost(player, board, (i, j), update_i, update_j, reserved), None
+                return reserved, find_ghost(player, board, (i, j), update_i, update_j, ghost), None
             return reserved, None, None
         else:
             return reserved, None, None
