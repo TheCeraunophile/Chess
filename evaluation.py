@@ -53,7 +53,7 @@ def find_best_move(board, players: List[Player], current: Player, ways):
     best_move = None
     for src, dst in ways:
         board.move(src, dst)
-        move_value = minimax(board, players, current, 7, False, float('-inf'), float('inf'))
+        move_value = minimax(board, players, current, 5, True, float('-inf'), float('inf'))
         board.back(src, dst)
         if move_value > best_value:
             best_value = move_value

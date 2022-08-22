@@ -132,12 +132,15 @@ class Board:
         tmp_moves = moves[:]
         for path in check_path:
             if path:
+                path = path[0]
+            if path:
                 check = True
                 for move in tmp_moves:
-                    if move[0] == self.kings.get(player) or move[1] in [x[1] for x in path] or move[1] == path[0][0]:
-                        continue
-                    else:
-                        moves.remove(move)
+                    if path:
+                        if move[0] == self.kings.get(player) or move[1] in [x[1] for x in path] or move[1] == path[0][0]:
+                            continue
+                        else:
+                            moves.remove(move)
         tmp_moves = moves[:]
         for move in nkp:
             if move[1] == self.kings.get(player):
