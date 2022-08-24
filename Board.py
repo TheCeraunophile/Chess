@@ -2,14 +2,14 @@ from time import time
 from Exceptions import EndOfGameException
 from typing import List
 from Piece import *
-from Node import Node
+from Tile import Tile
 from itertools import product
 
 
 class Board:
     def __init__(self, players: List[Player]):
         self.players = players
-        self.board: List[List[Node]] = []
+        self.board: List[List[Tile]] = []
         self.kings = {players[0]: (0, 4), players[1]: (7, 4)}
         columns = [0, 1, 2, 3, 4, 5, 6, 7]
         white_row = [0, 1]
@@ -23,11 +23,11 @@ class Board:
         self.create_board()
 
     def create_board(self):
-        tmp: List[List[Node]] = []
+        tmp: List[List[Tile]] = []
         for i in range(8):
-            column: List[Node] = []
+            column: List[Tile] = []
             for j in range(8):
-                column.append(Node(str(i) + chr(j + 65), (i, j)))
+                column.append(Tile())
             tmp.append(column)
         self.board = tmp
         self.initialization_board()
