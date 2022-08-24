@@ -1,5 +1,5 @@
 from Player import Player
-from Laws import diagonal_move, polar_move, king_move, knight_move, pawn_move
+from SetPin import king_knight, rook_bishop_queen, get_pawn
 
 
 class Piece:
@@ -29,7 +29,7 @@ class Knight(Piece):
         self.weight = 30
 
     def check_move(self, board, src: tuple, check_pinned):
-        return knight_move(board, self.owner, src)
+        return king_knight(board, src, 'knight')
 
 
 class King(Piece):
@@ -40,7 +40,7 @@ class King(Piece):
         self.weight = 900
 
     def check_move(self, board, src: tuple, check_pinned):
-        return king_move(board, self.owner, src)
+        return king_knight(board, src, 'king')
 
 
 class Rook(Piece):
@@ -51,7 +51,7 @@ class Rook(Piece):
         self.weight = 50
 
     def check_move(self, board, src: tuple, check_pinned):
-        return polar_move(board, self.owner, src, check_pinned)
+        return rook_bishop_queen(board, src, 'rook')
 
 
 class Bishop(Piece):
@@ -62,7 +62,7 @@ class Bishop(Piece):
         self.weight = 30
 
     def check_move(self, board, src: tuple, check_pinned):
-        return diagonal_move(board, self.owner, src, check_pinned)
+        return rook_bishop_queen(board, src, 'bishop')
 
 
 class Queen(Piece):
@@ -73,22 +73,7 @@ class Queen(Piece):
         self.weight = 90
 
     def check_move(self, board, src: tuple, check_pinned):
-        reserved = []
-        pinned = []
-        check_path = []
-        reserved1, pinned1, check_path1 = polar_move(board, self.owner, src, check_pinned)
-        reserved.extend(reserved1)
-        if pinned1:
-            pinned.append(pinned1)
-        if check_path1:
-            check_path.append(check_path1)
-        reserved2, pinned2, check_path2 = diagonal_move(board, self.owner, src, check_pinned)
-        reserved.extend(reserved2)
-        if pinned2:
-            pinned.append(pinned2)
-        if check_path2:
-            check_path.append(check_path2)
-        return reserved, pinned, check_path
+        return rook_bishop_queen(board, src, 'queen')
 
 
 class Pawn(Piece):
@@ -99,4 +84,4 @@ class Pawn(Piece):
         self.weight = 10
 
     def check_move(self, board, src: tuple, check_pinned):
-        return pawn_move(board, self.owner, src)
+        return get_pawn(board, src)

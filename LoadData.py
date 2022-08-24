@@ -1,6 +1,4 @@
-import time
-
-from Laws import diagonal_move, polar_move, king_move, knight_move, pawn_move
+from IndexGenerator import diagonal_move, polar_move, king_move, knight_move, pawn_move
 
 
 class Load:

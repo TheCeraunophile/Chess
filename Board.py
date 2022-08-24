@@ -1,4 +1,3 @@
-from time import time
 from Exceptions import EndOfGameException
 from typing import List
 from Piece import *
