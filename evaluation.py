@@ -1,5 +1,4 @@
 from Board import Board
-from Player import Player
 from Exceptions import EndOfGameException
 from typing import List
 
@@ -10,7 +9,7 @@ def evaluate(board: Board):
     return black - white
 
 
-def minimax(board: Board, players: List[Player], current: int, depth, is_max, alpha, beta):
+def minimax(board: Board, players: List[int], current: int, depth, is_max, alpha, beta):
     player = (current+1) % 2
     if depth == 0:
         return evaluate(board)
@@ -47,7 +46,7 @@ def minimax(board: Board, players: List[Player], current: int, depth, is_max, al
         return best_value
 
 
-def find_best_move(board, players: List[Player], current: int, ways):
+def find_best_move(board, players: List[int], current: int, ways):
     best_value = float('-inf')
     best_move = None
     for src, dst in ways:

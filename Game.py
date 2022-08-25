@@ -1,4 +1,3 @@
-from Player import *
 from Board import Board
 from Exceptions import EndOfGameException, InputException, MoveException, IllegalMoveException
 import random
