@@ -2,17 +2,16 @@ from Board import Board
 from Player import Player
 from Exceptions import EndOfGameException
 from typing import List
-import random
 
 
 def evaluate(board: Board):
-    white = board.board_weight.get(Player('WHITE'))
-    black = board.board_weight.get(Player('BLACK'))
+    white = board.board_weight.get(0)
+    black = board.board_weight.get(1)
     return black - white
 
 
-def minimax(board: Board, players: List[Player], current: Player, depth, is_max, alpha, beta):
-    player = players[0] if current.name == 'BLACK' else players[1]
+def minimax(board: Board, players: List[Player], current: int, depth, is_max, alpha, beta):
+    player = (current+1) % 2
     if depth == 0:
         return evaluate(board)
     try:
@@ -21,7 +20,7 @@ def minimax(board: Board, players: List[Player], current: Player, depth, is_max,
         if e.msg == 'DRAW':
             return 0
         else:
-            if player.name == 'WHITE':
+            if player == 0:
                 return 1000
             return -1000
     if is_max:
@@ -48,12 +47,12 @@ def minimax(board: Board, players: List[Player], current: Player, depth, is_max,
         return best_value
 
 
-def find_best_move(board, players: List[Player], current: Player, ways):
+def find_best_move(board, players: List[Player], current: int, ways):
     best_value = float('-inf')
     best_move = None
     for src, dst in ways:
         board.move(src, dst)
-        move_value = minimax(board, players, current, 5, True, float('-inf'), float('inf'))
+        move_value = minimax(board, players, current, 6, False, float('-inf'), float('inf'))
         board.back(src, dst)
         if move_value > best_value:
             best_value = move_value

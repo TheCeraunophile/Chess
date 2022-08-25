@@ -14,9 +14,9 @@ class Game:
     """
 
     def __init__(self):
-        self.players = [Player('WHITE'), Player('BLACK')]
-        self.current = self.players[0]
-        self.board = Board(self.players)
+        self.colors = {0: 'WHITE', 1: 'BLACK'}
+        self.players = [1, 0]
+        self.board = Board()
         self.turn = 0
         self.controls = []
         self.inv_columns = {'A': 0, 'B': 1, 'C': 2, 'D': 3, 'E': 4, 'F': 5, 'G': 6, 'H': 7}
@@ -42,12 +42,7 @@ class Game:
         return src, dst
 
     def update_turn(self):
-        """
-        Always player White starts the game
-        :return: next player
-        """
-        self.turn = (self.turn + 1) % 2
-        self.current = self.players[self.turn]
+        self.turn = self.players[self.turn]
 
     def select_starter(self, funcs):
         rand = random.randint(0, 1)
@@ -69,21 +64,20 @@ class Game:
     def main_loop(self):
         while True:
             try:
-                print(str(self.board.board_weight[Player('WHITE')]) + ' ' + str(self.board.board_weight[Player('BLACK')]))
-                print(self.current.name + ' TURN')
+                print(self.colors.get(self.turn), ' TURN')
                 print(self.board)
-                piece_to_node = self.board.pre_processing(self.current)
-                src, dst = self.controls[self.turn]() if self.controls[self.turn] == self.control else self.controls[self.turn](self.board, self.players, self.current, piece_to_node)
+                piece_to_node = self.board.pre_processing(self.turn)
+                src, dst = self.controls[self.turn]() if self.controls[self.turn] == self.control else self.controls[self.turn](self.board, self.players, self.turn, piece_to_node)
                 if (src, dst) not in piece_to_node:
                     raise IllegalMoveException('Illegal Move')
                 else:
-                    self.board.post_processing(self.current, src, dst)
+                    self.board.post_processing(self.turn, src, dst)
             except (MoveException, InputException, IllegalMoveException) as e:
                 print(e.msg)
             except EndOfGameException as e:
                 print(e.msg)
                 break
-            except KeyboardInterrupt:
+            except (KeyboardInterrupt, EOFError):
                 break
             except IndexError:
                 print('INVALID INPUT')
