@@ -9,8 +9,7 @@ class Load:
         self.bishop = {}
         self.queen = {}
         self.rook = {}
-        self.black_pawn = {}
-        self.white_pawn = {}
+        self.pawn = {0: {}, 1: {}}
         self.converter()
 
     def converter(self):
@@ -23,6 +22,8 @@ class Load:
             self.knight[node] = knight_move(node)
             self.rook[node] = polar_move(node)
             self.bishop[node] = diagonal_move(node)
-            self.white_pawn[node], self.black_pawn[node] = pawn_move(node)
+            t1, t2 = pawn_move(node)
+            self.pawn[0][node] = t1
+            self.pawn[1][node] = t2
             self.king[node] = king_move(node)
             self.queen[node] = polar_move(node) + diagonal_move(node)
