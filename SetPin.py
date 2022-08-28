@@ -3,9 +3,9 @@ from LoadData import Load
 
 class Report:
     check = False
-    pinned_movements = []
-    piece_checker = []
-    check_path = []
+    valid_pinned_movements = []
+    attacker_piece = []
+    attacker_to_king_path = []
 
     @staticmethod
     def initialize():
@@ -19,25 +19,33 @@ ins = Load()
 
 
 def king_knight(board, src, piece_type):
-    player = board[src[0]][src[1]].top.owner
+    player = board.board[src[0]][src[1]].top.owner
     resource = ins.king[src] if piece_type == 12 else ins.knight[src]
-    return [x for x in resource if board[x[1][0]][x[1][1]].top is None or board[x[1][0]][x[1][1]].top.owner != player]
+    return [x for x in resource if board.board[x[1][0]][x[1][1]].top is None or board.board[x[1][0]][x[1][1]].top.owner != player]
 
 
 def get_pawn(board, src, check_pawn):
-    player = board[src[0]][src[1]].top.owner
+    player = board.board[src[0]][src[1]].top.owner
     p1, p2 = ins.pawn[player][src]
     if check_pawn:
-        return [x for x in p2 if board[x[1][0]][x[1][1]].top is None or board[x[1][0]][x[1][1]].top.owner != player]
-    p1 = [x for x in p1 if board[x[1][0]][x[1][1]].top is None]
-    p2 = [x for x in p2 if board[x[1][0]][x[1][1]].top is not None and board[x[1][0]][x[1][1]].top.owner != player]
-    return p1 + p2
+        return [x for x in p2 if board.board[x[1][0]][x[1][1]].top is None or board.board[x[1][0]][x[1][1]].top.owner != player]
+    front = []
+    for move in p1:
+        dst = move[1]
+        if board.board[dst[0]][dst[1]].top is None:
+            front.append(move)
+        else:
+            break
+    p2 = [x for x in p2 if board.board[x[1][0]][x[1][1]].top is not None and board.board[x[1][0]][x[1][1]].top.owner != player]
+    return front[::-1] + p2[::-1]
 
 
 def rook_bishop_queen(board, src, piece_type, check):
     """
-    in this function if check equals True, we should detect all the pinned pieces with its valid movements
-        and check detections with its path,
+    if check happened, we have to create an array, starts from attacker piece and ends to the player king
+    without any exceptions, we should save a path starts from attacker piece goes throw the one player piece
+        and finally ends to the player king,
+    so we should save any path from attacker piece to the player king
     :param check:
     :param piece_type:
     :param board:
@@ -45,30 +53,40 @@ def rook_bishop_queen(board, src, piece_type, check):
     :return:
     """
 
-    player = board[src[0]][src[1]].top.owner
+    player = board.board[src[0]][src[1]].top.owner
     resource = ins.bishop[src] if piece_type == 3 else ins.rook[src] if piece_type == 5 else ins.queen[src]
     result = []
+    piece_name = board.board[src[0]][src[1]].top.name
 
     for middle in resource:
         path = []
-        for node in [x[1] for x in middle]:
-            if board[node[0]][node[1]].top is None:
-                result.append((src, node))
+        if not middle:
+            continue
+        dsts = [x[1] for x in middle]
+        src = middle[0][0]
+        for node in dsts:
+            dst_tile = board.board[node[0]][node[1]].top
+            if dst_tile is None:
+                path.append((src, node))
                 continue
-            if board[node[0]][node[1]].top.owner != player:
-                result.append((src, node))
+            if dst_tile.owner != player:
+                path.append((src, node))
                 if not check:
                     break
-                if board[node[0]][node[1]].top.weight == 12:
+                if dst_tile.weight == 12:
+                    Report.attacker_piece.append(src)
+                    Report.attacker_to_king_path.append(path)
                     Report.check = True
-                    Report.check_path.append(path)
-                    ghost()
+                    break
+                if not board.kings.get((player+1) % 2) in dsts:
+                    break
+                ghost(src, dsts, path)
             break
-        result += path
+        result += path[::-1]
     return result
 
 
-def ghost():
+def ghost(pinner_piece, path, pinner_to_pinned):
     pass
 
         # i = update_i(i)

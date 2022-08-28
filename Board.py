@@ -83,8 +83,6 @@ class Board:
         self.board[dst[0]][dst[1]].add(tmp)
 
     def pre_processing(self, player: int):
-        from time import time
-        p1 = time()
         Report.initialize()
         moves = []
         reserved = []
@@ -92,10 +90,10 @@ class Board:
         opponent = (player+1) % 2
 
         for node in self.pieces.get(opponent):
-            reserved.extend(self.board[node[0]][node[1]].top.check_move(self.board, node, True))
+            reserved.extend(self.board[node[0]][node[1]].top.check_move(self, node, True))
 
         for node in self.pieces.get(player):
-            moves.extend(self.board[node[0]][node[1]].top.check_move(self.board, node, False))
+            moves.extend(self.board[node[0]][node[1]].top.check_move(self, node, False))
 
         ...
 
@@ -104,7 +102,6 @@ class Board:
                 raise EndOfGameException('Black' if player == 0 else 'White' + ' Won the game')
             else:
                 raise EndOfGameException(':/')
-        p2 = time()
         return moves
 
     def post_processing(self, player, src, dst):
