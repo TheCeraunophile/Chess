@@ -91,12 +91,12 @@ class Board:
 
         for node in self.pieces.get(opponent):
             reserved.extend(self.board[node[0]][node[1]].top.check_move(self, node, True))
-
+        print('check status: ', Report.check)
+        print('attacker to king path_pinned : ', Report.attacker_to_king_path_pinned)
+        print('attacker piece : ', Report.attacker_piece)
+        print('path from attacker into king: ', Report.attacker_to_king_path)
         for node in self.pieces.get(player):
             moves.extend(self.board[node[0]][node[1]].top.check_move(self, node, False))
-
-        ...
-
         if len(moves) == 0:
             if is_check:
                 raise EndOfGameException('Black' if player == 0 else 'White' + ' Won the game')

@@ -3,16 +3,16 @@ from LoadData import Load
 
 class Report:
     check = False
-    valid_pinned_movements = []
+    attacker_to_king_path_pinned = []
     attacker_piece = []
     attacker_to_king_path = []
 
     @staticmethod
     def initialize():
         Report.check = False
-        Report.pinned_movements = []
-        Report.piece_checker = []
-        Report.check_path = []
+        Report.attacker_to_king_path_pinned = []
+        Report.attacker_piece = []
+        Report.attacker_to_king_path = []
 
 
 ins = Load()
@@ -56,16 +56,17 @@ def rook_bishop_queen(board, src, piece_type, check):
     player = board.board[src[0]][src[1]].top.owner
     resource = ins.bishop[src] if piece_type == 3 else ins.rook[src] if piece_type == 5 else ins.queen[src]
     result = []
-    piece_name = board.board[src[0]][src[1]].top.name
 
     for middle in resource:
         path = []
         if not middle:
             continue
         dsts = [x[1] for x in middle]
-        src = middle[0][0]
-        for node in dsts:
+        ptr = 0
+        while ptr < len(dsts):
+            node = dsts[ptr]
             dst_tile = board.board[node[0]][node[1]].top
+            ptr += 1
             if dst_tile is None:
                 path.append((src, node))
                 continue
@@ -80,23 +81,21 @@ def rook_bishop_queen(board, src, piece_type, check):
                     break
                 if not board.kings.get((player+1) % 2) in dsts:
                     break
-                ghost(src, dsts, path)
+                ghost(src, path[:], dsts, ptr, player, board)
             break
         result += path[::-1]
     return result
 
 
-def ghost(pinner_piece, path, pinner_to_pinned):
-    pass
-
-        # i = update_i(i)
-        # j = update_j(j)
-        # if i < 0 or i > 7 or j < 0 or j > 7:
-        #     return None
-        # if board[i][j].top is None:
-        #     ghost.append((i, j))
-        # elif board[i][j].top.owner != player and board[i][j].top.name.endswith('KING'):
-        #     ghost.append(src)
-        #     return ghost
-        # else:
-        #     return None
+def ghost(src, path, dsts, ptr, player, board):
+    while ptr < len(dsts):
+        node = dsts[ptr]
+        dst_tile = board.board[node[0]][node[1]].top
+        ptr += 1
+        if dst_tile is None:
+            path.append((src, node))
+            continue
+        if dst_tile.owner != player and dst_tile.weight == 12:
+            # add pinned piece in last index of attacker_to_king_path_pinned sublist
+            Report.attacker_to_king_path_pinned.append(path)
+        break

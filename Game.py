@@ -78,8 +78,8 @@ class Game:
                 break
             except (KeyboardInterrupt, EOFError):
                 break
-            except IndexError:
-                print('INVALID INPUT')
+            # except IndexError:
+            #     print('INVALID INPUT')
             else:
                 self.update_turn()
         exit(0)
