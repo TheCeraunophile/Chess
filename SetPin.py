@@ -30,21 +30,33 @@ class Report:
 ins = Load()
 
 
-def king_knight(board, src, piece_type, player):
-    resource = ins.king[src] if piece_type == 12 else ins.knight[src]
-    reserved = [x for x in resource if board.board[x[1][0]][x[1][1]].top is None
-                or board.board[x[1][0]][x[1][1]].top.owner != player]
-    if piece_type != 12 and board.kings.get((player + 1) % 2) in [x[1] for x in reserved]:
-        Report.check_two_way = True
-        Report.attacker_piece_two_way = src
-    return reserved
+def king(board, src, player, check):
+    resource = ins.king[src]
+    if check:
+        return resource
+    else:
+        reserved = [x for x in resource if board.board[x[1][0]][x[1][1]].top is None
+                    or board.board[x[1][0]][x[1][1]].top.owner != player]
+        return reserved
+
+
+def knight(board, src, player, check):
+    resource = ins.knight[src]
+    if check:
+        if board.kings.get((player + 1) % 2) in [x[1] for x in resource]:
+            Report.check_two_way = True
+            Report.attacker_piece_two_way = src
+        return resource
+    else:
+        reserved = [x for x in resource if board.board[x[1][0]][x[1][1]].top is None
+                    or board.board[x[1][0]][x[1][1]].top.owner != player]
+        return reserved
 
 
 def get_pawn(board, src, check_pawn, player):
     p1, p2 = ins.pawn[player][src]
     if check_pawn:
-        return [x for x in p2 if board.board[x[1][0]][x[1][1]].top is None
-                or board.board[x[1][0]][x[1][1]].top.owner != player]
+        return p2
     front = []
     for move in p1:
         dst = move[1]
@@ -89,7 +101,11 @@ def rook_bishop_queen(board, src, piece_type, check, player):
                 if not board.kings.get((player+1) % 2) in dsts:
                     break
                 ghost(src, path[:], dsts, ptr, player, board)
-            break
+            if not check:
+                break
+            else:
+                path.append((src, node))
+                break
         result += path[::-1]
     return result
 

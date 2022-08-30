@@ -98,8 +98,9 @@ class Board:
         copy = moves[:]
         for pinned_path in Report.attacker_to_king_path_pinned:
             pinned_piece = pinned_path[len(pinned_path) - 1]
+            attacker = pinned_path[0][0]
             for move in moves:
-                if move[0] == pinned_piece and move[1] not in [x[1] for x in pinned_path]:
+                if move[0] == pinned_piece and (move[1] not in [x[1] for x in pinned_path] and move[1] != attacker):
                     copy.remove(move)
         moves = copy
         check, three = Report.b_q_r_state()

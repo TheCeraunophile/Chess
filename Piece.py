@@ -1,4 +1,4 @@
-from SetPin import king_knight, rook_bishop_queen, get_pawn
+from SetPin import rook_bishop_queen, get_pawn, knight, king
 from termcolor import colored
 
 
@@ -29,7 +29,7 @@ class King(Piece):
         self.weight = 12
 
     def check_move(self, board, src: tuple, check):
-        return king_knight(board, src, 12, self.owner)
+        return king(board, src, self.owner, check)
 
 
 class Queen(Piece):
@@ -62,7 +62,7 @@ class Knight(Piece):
         self.weight = 3
 
     def check_move(self, board, src: tuple, check):
-        return king_knight(board, src, 3, self.owner)
+        return knight(board, src, self.owner, check)
 
 
 class Bishop(Piece):
