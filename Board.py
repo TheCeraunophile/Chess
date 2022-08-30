@@ -4,6 +4,7 @@ from Piece import *
 from Tile import Tile
 from itertools import product
 from SetPin import Report
+from termcolor import colored
 
 
 class Board:
@@ -86,20 +87,37 @@ class Board:
         Report.initialize()
         moves = []
         reserved = []
-        is_check = False
         opponent = (player+1) % 2
-
+        king_lock = self.kings.get(player)
         for node in self.pieces.get(opponent):
             reserved.extend(self.board[node[0]][node[1]].top.check_move(self, node, True))
-        print('check status: ', Report.check)
-        print('attacker to king path_pinned : ', Report.attacker_to_king_path_pinned)
-        print('attacker piece : ', Report.attacker_piece)
-        print('path from attacker into king: ', Report.attacker_to_king_path)
+        is_check = Report.check
         for node in self.pieces.get(player):
             moves.extend(self.board[node[0]][node[1]].top.check_move(self, node, False))
+        moves = [move for move in moves if move[0] != king_lock or move[1] not in [x[1] for x in reserved]]
+        copy = moves[:]
+        for pinned_path in Report.attacker_to_king_path_pinned:
+            pinned_piece = pinned_path[len(pinned_path) - 1]
+            for move in moves:
+                if move[0] == pinned_piece and move[1] not in [x[1] for x in pinned_path]:
+                    copy.remove(move)
+        moves = copy
+        check, three = Report.b_q_r_state()
+        if check:
+            if three:
+                moves = [move for move in moves if move[0] == king_lock
+                         or move[1] == Report.attacker_piece[0]
+                         or move[1] in [x[1] for x in Report.attacker_to_king_path[0]]]
+            else:
+                moves = [move for move in moves if move[0] == king_lock
+                         or move[1] == Report.attacker_piece[0]]
+        kkp = Report.attacker_piece_two_way
+        if kkp is not None:
+            moves = [move for move in moves if move[0] == king_lock
+                     or move[1] == kkp]
         if len(moves) == 0:
             if is_check:
-                raise EndOfGameException('Black' if player == 0 else 'White' + ' Won the game')
+                raise EndOfGameException(('Black' if player == 0 else 'White') + ' Won the game')
             else:
                 raise EndOfGameException(':/')
         return moves
@@ -128,9 +146,9 @@ class Board:
                 tmp = self.board[i][j].top
                 if tmp is None:
                     if (i + j) % 2 == 0:
-                        line_buffer += u'\u25FB'
+                        line_buffer += colored(u'\u25FC', 'white')
                     else:
-                        line_buffer += u'\u25FC'
+                        line_buffer += colored(u'\u25FC', 'green')
                 else:
                     line_buffer += tmp.shape
                 line_buffer += '  '
