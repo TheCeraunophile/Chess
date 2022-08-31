@@ -120,7 +120,7 @@ class Board:
             if is_check:
                 raise EndOfGameException(('Black' if player == 0 else 'White') + ' Won the game')
             else:
-                raise EndOfGameException(':/')
+                raise EndOfGameException('DRAW')
         return moves
 
     def post_processing(self, player, src, dst):

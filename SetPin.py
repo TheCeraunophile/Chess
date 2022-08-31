@@ -75,7 +75,6 @@ def get_pawn(board, src, check_pawn, player):
 def rook_bishop_queen(board, src, piece_type, check, player):
     resource = ins.bishop[src] if piece_type == 3 else ins.rook[src] if piece_type == 5 else ins.queen[src]
     result = []
-
     for middle in resource:
         path = []
         if not middle:
@@ -95,8 +94,10 @@ def rook_bishop_queen(board, src, piece_type, check, player):
                     break
                 if dst_tile.weight == 12:
                     Report.attacker_piece.append(src)
-                    Report.attacker_to_king_path.append(path)
+                    Report.attacker_to_king_path.append(path[:])
                     Report.check = True
+                    if check:
+                        continue
                     break
                 if not board.kings.get((player+1) % 2) in dsts:
                     break

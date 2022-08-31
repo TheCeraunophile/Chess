@@ -1,7 +1,7 @@
 from Board import Board
 from Exceptions import EndOfGameException, InputException, MoveException, IllegalMoveException
 import random
-from evaluation import find_best_move
+from evaluation import find_best_move, find_middle_move
 
 
 class Game:
@@ -29,16 +29,19 @@ class Game:
         """
 
     def control(self):
-        src = input('source:    ')
-        src = self.inv_rows.get(src[0], None), self.inv_columns.get(src[1], None)
-        if None in src:
-            raise InputException('invalid src')
-        dst = input('destination:    ')
-        dst = self.inv_rows.get(
-            dst[0], None), self.inv_columns.get(dst[1], None)
-        if None in dst:
-            raise InputException('invalid dst')
-        return src, dst
+        try:
+            src = input('source:    ')
+            src = self.inv_rows.get(src[0], None), self.inv_columns.get(src[1], None)
+            if None in src:
+                raise InputException('invalid src')
+            dst = input('destination:    ')
+            dst = self.inv_rows.get(
+                dst[0], None), self.inv_columns.get(dst[1], None)
+            if None in dst:
+                raise InputException('invalid dst')
+            return src, dst
+        except IndexError:
+            self.control()
 
     def update_turn(self):
         self.turn = self.players[self.turn]
@@ -51,9 +54,9 @@ class Game:
     def select_mode(self):
         while True:
             try:
-                question = '1: ' + u'\U0001F464' + ' VS ' + u'\U0001F464' + '\n\n' + '2: ' + u'\U0001F464' + ' VS ' + u'\U0001F418'
+                question = '1: ' + u'\U0001F464' + ' VS ' + u'\U0001F464' + '\n\n' + '2: ' + u'\U0001F418' + ' VS ' + u'\U0001F418'
                 print(question)
-                answer = {'1': (self.control, self.control), '2': (self.control, find_best_move)}
+                answer = {'1': (self.control, self.control), '2': (find_middle_move, find_best_move)}
                 mode = input()
                 self.select_starter(answer.get(mode))
                 break
@@ -66,7 +69,7 @@ class Game:
                 print(self.colors.get(self.turn), ' TURN')
                 print(self.board)
                 piece_to_node = self.board.pre_processing(self.turn)
-                src, dst = self.controls[self.turn]() if self.controls[self.turn] == self.control else self.controls[self.turn](self.board, self.players, self.turn, piece_to_node)
+                src, dst = self.controls[self.turn](self.board, self.players, self.turn, piece_to_node) if self.controls[self.turn] == self.control else self.controls[self.turn](self.board, self.players, self.turn, piece_to_node)
                 if (src, dst) not in piece_to_node:
                     raise IllegalMoveException('Illegal Move')
                 else:
