@@ -1,5 +1,5 @@
 class Tile:
-    def __init__(self, piece=None):
+    def __init__(self, piece=None, castle=False):
         self.top = piece
         self.down = []
 

@@ -20,13 +20,13 @@ def minimax(board: Board, players: List[int], current: int, depth, is_max, alpha
         if e.msg == 'DRAW':
             return 0
         else:
-            if player == 0:
-                return 1000
-            return -1000
+            if player == id:
+                return -1000
+            return 1000
     if is_max:
         best_value = float('-inf')
         for src, dst in ways:
-            board.move(src, dst)
+            board.post_processing(player, src, dst, False)
             value = minimax(board, players, player, depth - 1, False, alpha, beta, id)
             board.back(src, dst)
             best_value = max(best_value, value)
@@ -37,7 +37,8 @@ def minimax(board: Board, players: List[int], current: int, depth, is_max, alpha
     else:
         best_value = float('+inf')
         for src, dst in ways:
-            board.move(src, dst)
+            # board.move(src, dst)
+            board.post_processing(player, src, dst, False)
             value = minimax(board, players, player, depth - 1, True, alpha, beta, id)
             board.back(src, dst)
             best_value = min(best_value, value)
@@ -47,19 +48,18 @@ def minimax(board: Board, players: List[int], current: int, depth, is_max, alpha
         return best_value
 
 
-def find_best_move(board, players: List[int], current: int, ways):
+def find_best_move(board, players: List[int], current: int, ways, max_depth):
     best_value = float('-inf')
     best_move = None
     stack = []
     for src, dst in ways:
         board.move(src, dst)
-        move_value = minimax(board, players, current, 3, False, float('-inf'), float('inf'), current)
+        move_value = minimax(board, players, current, max_depth, False, float('-inf'), float('inf'), current)
         board.back(src, dst)
         if move_value > best_value:
-            stack = []
             best_value = move_value
             best_move = (src, dst)
-            stack.append(best_move)
+            stack = [best_move]
         elif move_value == best_value:
             stack.append((src, dst))
     if len(stack) == 0:
@@ -67,19 +67,18 @@ def find_best_move(board, players: List[int], current: int, ways):
     return stack[random.randrange(len(stack))]
 
 
-def find_middle_move(board, players: List[int], current: int, ways):
+def find_middle_move(board, players: List[int], current: int, ways, max_depth):
     best_value = float('-inf')
     best_move = None
     stack = []
     for src, dst in ways:
         board.move(src, dst)
-        move_value = minimax(board, players, current, 2, False, float('-inf'), float('inf'), current)
+        move_value = minimax(board, players, current, max_depth, False, float('-inf'), float('inf'), current)
         board.back(src, dst)
         if move_value > best_value:
             best_value = move_value
             best_move = (src, dst)
-            stack = []
-            stack.append(best_move)
+            stack = [best_move]
         elif move_value == best_value:
             stack.append((src, dst))
     if len(stack) == 0:

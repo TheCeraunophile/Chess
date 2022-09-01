@@ -123,21 +123,26 @@ class Board:
                 raise EndOfGameException('DRAW')
         return moves
 
-    def post_processing(self, player, src, dst):
+    def post_processing(self, player, src, dst, human):
         self.move(src, dst)
-        expand = {self.players[0]: 7, self.players[1]: 0}
-        if isinstance(self.board[dst[0]][dst[1]].top, Pawn) \
-                and expand.get(self.board[dst[0]][dst[1]].top.owner) == dst[0]:
-            self.board[dst[0]][dst[1]].down.pop()
-            while True:
-                try:
-                    list_pieces = {'Q': Queen, 'R': Rook, 'K': Knight, 'B': Bishop}
-                    promoted_piece = input('Q: queen R: rook K: knight B: bishop\n')
-                    tmp = list_pieces.get(promoted_piece)
-                    self.board[dst[0]][dst[1]].top = tmp(player)
-                    break
-                except Exception:
-                    continue
+        expand = {0: 7, 1: 0}
+        if self.board[dst[0]][dst[1]].top is not None:
+            if expand.get(self.board[dst[0]][dst[1]].top.owner) == dst[0] \
+                    and isinstance(self.board[dst[0]][dst[1]].top, Pawn):
+                if human:
+                    while True:
+                        try:
+                            list_pieces = {'Q': Queen, 'R': Rook, 'K': Knight, 'B': Bishop}
+                            promoted_piece = input('Q: queen R: rook K: knight B: bishop\n')
+                            tmp = list_pieces.get(promoted_piece)
+                            self.board[dst[0]][dst[1]].top = tmp(player)
+                            self.board[dst[0]][dst[1]].castle = True
+                            break
+                        except Exception:
+                            continue
+                else:
+                    self.board[dst[0]][dst[1]].top = Queen(player)
+                    self.board[dst[0]][dst[1]].castle = True
 
     def __str__(self):
         line_buffer = '   A  B  C  D  E  F  G  H'

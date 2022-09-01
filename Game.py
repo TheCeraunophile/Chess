@@ -21,6 +21,8 @@ class Game:
         self.inv_columns = {'A': 0, 'B': 1, 'C': 2, 'D': 3, 'E': 4, 'F': 5, 'G': 6, 'H': 7}
         self.inv_rows = {'1': 0, '2': 1, '3': 2, '4': 3, '5': 4, '6': 5, '7': 6, '8': 7, }
         self.columns = {0: 'A', 1: 'B', 2: 'C', 3: 'D', 4: 'E', 5: 'F', 6: 'G', 7: 'H'}
+        self.count = 0
+        self.max_depth = 2
 
         """
         each one of 64 chess houses defined by a number in range 1-8
@@ -66,14 +68,25 @@ class Game:
     def main_loop(self):
         while True:
             try:
+                self.count += 1
+                if self.count >= 5:
+                    self.max_depth = 3
+                if self.count >= 150:
+                    self.max_depth = 4
+                if self.count >= 200:
+                    self.max_depth = 5
+                if self.count > 250:
+                    self.max_depth = 6
+                print(self.count)
                 print(self.colors.get(self.turn), ' TURN')
                 print(self.board)
                 piece_to_node = self.board.pre_processing(self.turn)
-                src, dst = self.controls[self.turn](self.board, self.players, self.turn, piece_to_node) if self.controls[self.turn] == self.control else self.controls[self.turn](self.board, self.players, self.turn, piece_to_node)
+                src, dst = self.controls[self.turn](self.board, self.players, self.turn, piece_to_node, self.max_depth) if self.controls[self.turn] == self.control else self.controls[self.turn](self.board, self.players, self.turn, piece_to_node, self.max_depth)
                 if (src, dst) not in piece_to_node:
                     raise IllegalMoveException('Illegal Move')
                 else:
-                    self.board.post_processing(self.turn, src, dst)
+                    human_or_robot = True if self.controls[self.turn] == self.control else False
+                    self.board.post_processing(self.turn, src, dst, human_or_robot)
             except (MoveException, InputException, IllegalMoveException) as e:
                 print(e.msg)
             except EndOfGameException as e:
