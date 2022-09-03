@@ -7,6 +7,10 @@ import random
 def evaluate(board: Board, id):
     white = board.board_weight.get(0)
     black = board.board_weight.get(1)
+    white += 20 if board.is_castle[0] else 0
+    black += 20 if board.is_castle[1] else 0
+    white += 5 if (not board.castle_power_rook_right[0] and not board.castle_power_rook_left[0]) else -5
+    black += 5 if (not board.castle_power_rook_right[1] and not board.castle_power_rook_left[1]) else -5
     return black - white if id else white - black
 
 

@@ -1,7 +1,8 @@
 class Tile:
-    def __init__(self, piece=None, castle=False):
+    def __init__(self, piece=None):
         self.top = piece
         self.down = []
+        self.promote = False
 
     def add(self, piece):
         self.down.append(self.top)

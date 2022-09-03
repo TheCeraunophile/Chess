@@ -56,6 +56,9 @@ def knight(board, src, player, check):
 def get_pawn(board, src, check_pawn, player):
     p1, p2 = ins.pawn[player][src]
     if check_pawn:
+        if board.kings.get((player + 1) % 2) in [x[1] for x in p2]:
+            Report.check_two_way = True
+            Report.attacker_piece_two_way = src
         return p2
     front = []
     for move in p1:
@@ -66,9 +69,6 @@ def get_pawn(board, src, check_pawn, player):
             break
     p2 = [x for x in p2 if board.board[x[1][0]][x[1][1]].top is not None
           and board.board[x[1][0]][x[1][1]].top.owner != player]
-    if board.kings.get((player + 1) % 2) in [x[1] for x in p2]:
-        Report.check_two_way = True
-        Report.attacker_piece_two_way = src
     return front[::-1] + p2[::-1]
 
 

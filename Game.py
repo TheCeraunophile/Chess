@@ -71,22 +71,21 @@ class Game:
                 self.count += 1
                 if self.count >= 5:
                     self.max_depth = 3
-                if self.count >= 150:
+                if self.count >= 180:
                     self.max_depth = 4
-                if self.count >= 200:
+                if self.count >= 250:
                     self.max_depth = 5
-                if self.count > 250:
-                    self.max_depth = 6
                 print(self.count)
                 print(self.colors.get(self.turn), ' TURN')
                 print(self.board)
                 piece_to_node = self.board.pre_processing(self.turn)
-                src, dst = self.controls[self.turn](self.board, self.players, self.turn, piece_to_node, self.max_depth) if self.controls[self.turn] == self.control else self.controls[self.turn](self.board, self.players, self.turn, piece_to_node, self.max_depth)
+                src, dst = self.controls[self.turn]() if self.controls[self.turn] == self.control else self.controls[self.turn](self.board, self.players, self.turn, piece_to_node, self.max_depth)
                 if (src, dst) not in piece_to_node:
                     raise IllegalMoveException('Illegal Move')
                 else:
                     human_or_robot = True if self.controls[self.turn] == self.control else False
                     self.board.post_processing(self.turn, src, dst, human_or_robot)
+                    self.board.castle_stack_pop()
             except (MoveException, InputException, IllegalMoveException) as e:
                 print(e.msg)
             except EndOfGameException as e:
@@ -94,8 +93,12 @@ class Game:
                 break
             except (KeyboardInterrupt, EOFError):
                 break
-            # except IndexError:
-            #     print('INVALID INPUT')
+            # except:
+            #     print('before')
+            #     print(self.board)
+            #     raise
+            except IndexError:
+                print('INVALID INPUT')
             else:
                 self.update_turn()
         exit(0)
