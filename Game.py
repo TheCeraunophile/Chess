@@ -1,16 +1,10 @@
 from Board import Board
 from Exceptions import EndOfGameException, InputException, MoveException, IllegalMoveException
 import random
-from evaluation import find_best_move, find_middle_move
+from evaluation import find_best_move
 
 
 class Game:
-    """
-    game class has a board and a function named: control, that gives
-    one move from the user and implement it.
-    every move specified by a source and destination, your piece located
-    in src and goes to the des.
-    """
 
     def __init__(self):
         self.colors = {0: 'WHITE', 1: 'BLACK'}
@@ -24,13 +18,7 @@ class Game:
         self.count = 0
         self.max_depth = 2
 
-        """
-        each one of 64 chess houses defined by a number in range 1-8
-        and a character in range A-H, so we should convert the input into
-        our 2D Array indexes from (0, 0)-(7, 7).
-        """
-
-    def control(self):
+    def control(self, *param):
         try:
             src = input('source:    ')
             src = self.inv_rows.get(src[0], None), self.inv_columns.get(src[1], None)
@@ -56,9 +44,17 @@ class Game:
     def select_mode(self):
         while True:
             try:
-                question = '1: ' + u'\U0001F464' + ' VS ' + u'\U0001F464' + '\n\n' + '2: ' + u'\U0001F418' + ' VS ' + u'\U0001F418'
+                question = '1: ' + u'\U0001F464' + ' VS ' + u'\U0001F464' +\
+                           '\n\n' +\
+                           '2: ' + u'\U0001F464' + ' VS ' + u'\U0001F418' + \
+                           '\n\n' + \
+                           '3: ' + u'\U0001F418' + ' VS ' + u'\U0001F418'
                 print(question)
-                answer = {'1': (self.control, self.control), '2': (find_middle_move, find_best_move)}
+                answer = {
+                    '1': (self.control, self.control),
+                    '2': (self.control, find_best_move),
+                    '3': (find_best_move, find_best_move)
+                }
                 mode = input()
                 self.select_starter(answer.get(mode))
                 break
@@ -79,7 +75,7 @@ class Game:
                 print(self.colors.get(self.turn), ' TURN')
                 print(self.board)
                 piece_to_node = self.board.pre_processing(self.turn)
-                src, dst = self.controls[self.turn]() if self.controls[self.turn] == self.control else self.controls[self.turn](self.board, self.players, self.turn, piece_to_node, self.max_depth)
+                src, dst = self.controls[self.turn](self.board, self.players, self.turn, piece_to_node, self.max_depth)
                 if (src, dst) not in piece_to_node:
                     raise IllegalMoveException('Illegal Move')
                 else:
@@ -93,10 +89,6 @@ class Game:
                 break
             except (KeyboardInterrupt, EOFError):
                 break
-            # except:
-            #     print('before')
-            #     print(self.board)
-            #     raise
             except IndexError:
                 print('INVALID INPUT')
             else:

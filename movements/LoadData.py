@@ -1,4 +1,4 @@
-from IndexGenerator import diagonal_move, polar_move, king_move, knight_move, pawn_move
+from movements.IndexGenerator import diagonal_move, polar_move, king_move, knight_move, pawn_move
 
 
 class Load:

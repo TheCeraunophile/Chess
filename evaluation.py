@@ -7,10 +7,10 @@ import random
 def evaluate(board: Board, id):
     white = board.board_weight.get(0)
     black = board.board_weight.get(1)
-    white += 20 if board.is_castle[0] else 0
-    black += 20 if board.is_castle[1] else 0
-    white += 5 if (not board.castle_power_rook_right[0] and not board.castle_power_rook_left[0]) else -5
-    black += 5 if (not board.castle_power_rook_right[1] and not board.castle_power_rook_left[1]) else -5
+    white += 5 if board.is_castle[0] else 0
+    black += 5 if board.is_castle[1] else 0
+    white += 2 if (not board.castle_power_rook_right[0] and not board.castle_power_rook_left[0]) else -2
+    black += 2 if (not board.castle_power_rook_right[1] and not board.castle_power_rook_left[1]) else -2
     return black - white if id else white - black
 
 
@@ -41,7 +41,6 @@ def minimax(board: Board, players: List[int], current: int, depth, is_max, alpha
     else:
         best_value = float('+inf')
         for src, dst in ways:
-            # board.move(src, dst)
             board.post_processing(player, src, dst, False)
             value = minimax(board, players, player, depth - 1, True, alpha, beta, id)
             board.back(src, dst)
@@ -54,7 +53,6 @@ def minimax(board: Board, players: List[int], current: int, depth, is_max, alpha
 
 def find_best_move(board, players: List[int], current: int, ways, max_depth):
     best_value = float('-inf')
-    best_move = None
     stack = []
     for src, dst in ways:
         board.move(src, dst)
@@ -73,7 +71,6 @@ def find_best_move(board, players: List[int], current: int, ways, max_depth):
 
 def find_middle_move(board, players: List[int], current: int, ways, max_depth):
     best_value = float('-inf')
-    best_move = None
     stack = []
     for src, dst in ways:
         board.move(src, dst)

@@ -1,4 +1,4 @@
-from LoadData import Load
+from movements.LoadData import Load
 
 
 class Report:

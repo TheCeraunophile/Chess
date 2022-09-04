@@ -1,4 +1,4 @@
-from SetPin import rook_bishop_queen, get_pawn, knight, king
+from movements.__init__ import rook_bishop_queen, get_pawn, knight, king
 from termcolor import colored
 
 

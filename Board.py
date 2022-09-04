@@ -3,7 +3,7 @@ from typing import List
 from Piece import *
 from Tile import Tile
 from itertools import product
-from SetPin import Report
+from movements.__init__ import Report
 from termcolor import colored
 
 
